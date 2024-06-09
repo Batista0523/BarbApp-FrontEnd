@@ -7,7 +7,7 @@ import Barbers from './Pages/Barbers';
 import Reviews from './Pages/Reviews';
 import Profile from './Pages/Profile';
 import Login from './Components/User/Login';
-import NavBar from './NAvBar/NavBar';
+import NavBar from './Components/NAvBar/NavBar';
 import Register from './Components/User/Register';
 
 
