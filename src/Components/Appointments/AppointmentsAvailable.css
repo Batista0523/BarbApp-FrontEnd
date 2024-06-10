@@ -1,0 +1,55 @@
+.appointments-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .appointments-title {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .appointments-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .appointment-item {
+    background-color: #fff;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .appointment-item:hover {
+    transform: scale(1.02);
+  }
+  
+  .appointment-customer,
+  .appointment-barber {
+    font-size: 20px;
+    color: #555;
+    margin: 5px 0;
+  }
+  
+  .appointment-with {
+    font-size: 18px;
+    color: #777;
+    margin: 5px 0;
+  }
+  
+  .appointment-date,
+  .appointment-time,
+  .appointment-status {
+    font-size: 16px;
+    color: #999;
+    margin: 5px 0;
+  }
+  

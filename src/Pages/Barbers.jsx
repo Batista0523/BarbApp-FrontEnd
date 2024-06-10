@@ -1,9 +1,12 @@
 import React from "react";
+import BarberDetails from "../Components/Barbers/BarberDetails"
+
 
 function Barbers() {
+
   return (
     <div>
-      <h1>Barbers</h1>
+     <BarberDetails/>
     </div>
   );
 }
