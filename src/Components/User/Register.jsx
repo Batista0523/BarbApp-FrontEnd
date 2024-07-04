@@ -1,38 +1,42 @@
 import React, { useState } from "react";
 import { addItem } from "../../helpers/apiCalls";
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function Register() {
-  const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
-  const [profileInfo, setProfileInfo] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [address, setAddress] = useState("");
+  const initialState = {
+    name: "",
+    username: "",
+    password: "",
+    email: "",
+    role: "",
+    profileInfo: "",
+    phoneNumber: "",
+    address: "",
+  };
+
+  const [formData, setFormData] = useState(initialState);
   const [showPassword, setShowPassword] = useState(false);
   const [notification, setNotification] = useState(null);
 
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData({ ...formData, [id]: value });
+  };
+
   const handleRegister = (e) => {
     e.preventDefault();
-    const userData = {
-      name,
-      username,
-      password,
-      email,
-      role,
-      profile_info: profileInfo,
-      phone_number: phoneNumber,
-      address,
-    };
 
-    const endpoint = "users"; // Endpoint should be defined inside handleRegister
+    const endpoint = "users";
 
-    addItem(endpoint, userData)
+    addItem(endpoint, formData)
       .then((response) => {
         if (response) {
           console.log("Registration successful", response);
-          // Handle successful registration, e.g., redirect or show success message
+          alert("Registration successful"); // Show an alert or message
+
+          // Reset the form
+          setFormData(initialState);
+          setNotification(null); // Clear any previous error notifications
         } else {
           console.error("Error registering user");
           // Handle registration error
@@ -41,11 +45,11 @@ function Register() {
       .catch((error) => {
         console.error("Unexpected error:", error);
         // Handle unexpected error
-        if (error.response && error.response.data) {
+        if (error.response && error.response.data && error.response.data.message) {
           const { message } = error.response.data;
           setNotification(message);
         } else {
-          setNotification("Registration failed due to an unexpected error.");
+          setNotification("Unexpected error occurred");
         }
       });
   };
@@ -55,66 +59,70 @@ function Register() {
   };
 
   return (
-    <div>
-      <h1>Register</h1>
-      {notification && <div style={{ color: "red" }}>{notification}</div>}
+    <div className="container mt-5">
+      <h1 className="mb-4">Register</h1>
+      {notification && <div className="alert alert-danger">{notification}</div>}
       <form onSubmit={handleRegister}>
-        <div>
-          <label htmlFor="name">Name</label>
+        <div className="mb-3">
+          <label htmlFor="name" className="form-label">Name</label>
           <input
             type="text"
             id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={formData.name}
+            onChange={handleInputChange}
+            className="form-control"
             required
           />
         </div>
-        <div>
-          <label htmlFor="username">Username</label>
+        <div className="mb-3">
+          <label htmlFor="username" className="form-label">Username</label>
           <input
             type="text"
             id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            value={formData.username}
+            onChange={handleInputChange}
+            className="form-control"
             required
           />
         </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <div style={{ display: "flex", alignItems: "center" }}>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">Password</label>
+          <div className="input-group">
             <input
               type={showPassword ? "text" : "password"}
               id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={formData.password}
+              onChange={handleInputChange}
+              className="form-control"
               required
             />
-            <label>
-              <input
-                type="checkbox"
-                onChange={togglePasswordVisibility}
-                style={{ marginLeft: "10px" }}
-              />
-              Show Password
-            </label>
+            <button
+              type="button"
+              className="btn btn-outline-secondary"
+              onClick={togglePasswordVisibility}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
           </div>
         </div>
-        <div>
-          <label htmlFor="email">Email</label>
+        <div className="mb-3">
+          <label htmlFor="email" className="form-label">Email</label>
           <input
             type="email"
             id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleInputChange}
+            className="form-control"
             required
           />
         </div>
-        <div>
-          <label htmlFor="role">Role</label>
+        <div className="mb-3">
+          <label htmlFor="role" className="form-label">Role</label>
           <select
             id="role"
-            value={role}
-            onChange={(e) => setRole(e.target.value)}
+            value={formData.role}
+            onChange={handleInputChange}
+            className="form-select"
             required
           >
             <option value="">Select Role</option>
@@ -122,34 +130,37 @@ function Register() {
             <option value="barber">Barber</option>
           </select>
         </div>
-        <div>
-          <label htmlFor="profileInfo">Bio</label>
+        <div className="mb-3">
+          <label htmlFor="profileInfo" className="form-label">Bio</label>
           <input
             type="text"
             id="profileInfo"
-            value={profileInfo}
-            onChange={(e) => setProfileInfo(e.target.value)}
+            value={formData.profileInfo}
+            onChange={handleInputChange}
+            className="form-control"
           />
         </div>
-        <div>
-          <label htmlFor="phoneNumber">Phone Number</label>
+        <div className="mb-3">
+          <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
           <input
             type="text"
             id="phoneNumber"
-            value={phoneNumber}
-            onChange={(e) => setPhoneNumber(e.target.value)}
+            value={formData.phoneNumber}
+            onChange={handleInputChange}
+            className="form-control"
           />
         </div>
-        <div>
-          <label htmlFor="address">Address</label>
+        <div className="mb-3">
+          <label htmlFor="address" className="form-label">Address</label>
           <input
             type="text"
             id="address"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
+            value={formData.address}
+            onChange={handleInputChange}
+            className="form-control"
           />
         </div>
-        <button type="submit">Register</button>
+        <button type="submit" className="btn btn-primary">Register</button>
       </form>
     </div>
   );
