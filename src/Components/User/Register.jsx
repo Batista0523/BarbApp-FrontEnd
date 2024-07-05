@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { addItem } from "../../helpers/apiCalls";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 
 function Register() {
   const initialState = {
@@ -45,7 +45,11 @@ function Register() {
       .catch((error) => {
         console.error("Unexpected error:", error);
         // Handle unexpected error
-        if (error.response && error.response.data && error.response.data.message) {
+        if (
+          error.response &&
+          error.response.data &&
+          error.response.data.message
+        ) {
           const { message } = error.response.data;
           setNotification(message);
         } else {
@@ -64,7 +68,9 @@ function Register() {
       {notification && <div className="alert alert-danger">{notification}</div>}
       <form onSubmit={handleRegister}>
         <div className="mb-3">
-          <label htmlFor="name" className="form-label">Name</label>
+          <label htmlFor="name" className="form-label">
+            Name
+          </label>
           <input
             type="text"
             id="name"
@@ -75,7 +81,9 @@ function Register() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="username" className="form-label">Username</label>
+          <label htmlFor="username" className="form-label">
+            Username
+          </label>
           <input
             type="text"
             id="username"
@@ -86,7 +94,22 @@ function Register() {
           />
         </div>
         <div className="mb-3">
-          <label htmlFor="password" className="form-label">Password</label>
+          <label htmlFor="email" className="form-label">
+            Email
+          </label>
+          <input
+            type="email"
+            id="email"
+            value={formData.email}
+            onChange={handleInputChange}
+            className="form-control"
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label htmlFor="password" className="form-label">
+            Password
+          </label>
           <div className="input-group">
             <input
               type={showPassword ? "text" : "password"}
@@ -106,18 +129,9 @@ function Register() {
           </div>
         </div>
         <div className="mb-3">
-          <label htmlFor="email" className="form-label">Email</label>
-          <input
-            type="email"
-            id="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            className="form-control"
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="role" className="form-label">Role</label>
+          <label htmlFor="role" className="form-label">
+            Role
+          </label>
           <select
             id="role"
             value={formData.role}
@@ -130,37 +144,10 @@ function Register() {
             <option value="barber">Barber</option>
           </select>
         </div>
-        <div className="mb-3">
-          <label htmlFor="profileInfo" className="form-label">Bio</label>
-          <input
-            type="text"
-            id="profileInfo"
-            value={formData.profileInfo}
-            onChange={handleInputChange}
-            className="form-control"
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="phoneNumber" className="form-label">Phone Number</label>
-          <input
-            type="text"
-            id="phoneNumber"
-            value={formData.phoneNumber}
-            onChange={handleInputChange}
-            className="form-control"
-          />
-        </div>
-        <div className="mb-3">
-          <label htmlFor="address" className="form-label">Address</label>
-          <input
-            type="text"
-            id="address"
-            value={formData.address}
-            onChange={handleInputChange}
-            className="form-control"
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Register</button>
+
+        <button type="submit" className="btn btn-primary">
+          Register
+        </button>
       </form>
     </div>
   );
