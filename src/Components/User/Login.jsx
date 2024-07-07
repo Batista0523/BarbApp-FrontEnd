@@ -12,9 +12,9 @@ function Login({ setUser }) {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const endpoint = 'users/login'; 
+    const endpoint = 'users/'; 
 
-    
+
     try {
       const response = await addItem(endpoint, { username, password });
 
