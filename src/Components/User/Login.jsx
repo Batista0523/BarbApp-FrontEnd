@@ -12,7 +12,8 @@ function Login({ setUser }) {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const endpoint = 'users/'; 
+    const endpoint = 'users/logim'; 
+
 
 
     try {
