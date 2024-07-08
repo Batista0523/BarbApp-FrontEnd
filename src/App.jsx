@@ -52,6 +52,7 @@ function App() {
       <Navbar user={user} />
       <div className="container mt-5">
         <Routes>
+          
           <Route path="/" element={<Home />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/barbers" element={<Barbers />} />
