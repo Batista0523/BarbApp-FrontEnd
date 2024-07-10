@@ -8,13 +8,20 @@ import Appointments from "./Pages/Appointments";
 import Reviews from "./Pages/Reviews";
 import Barbers from "./Pages/Barbers";
 import UserProfile from "./Components/User/UserProfile";
-
 function App() {
   const [user, setUser] = useState(null);
 
+  const handleLogin = (userData) => {
+    setUser(userData);
+  };
+
+  const handleLogOff = () => {
+    setUser(null);
+  };
+
   return (
     <Router>
-      <NavBar user={user} />
+      <NavBar user={user} onLogOff={handleLogOff} />
       <div className="container mt-5">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -22,7 +29,7 @@ function App() {
           <Route path="/barbers" element={<Barbers />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/profile/:id" element={<UserProfile />} />
-          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/login" element={<Login setUser={handleLogin} />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </div>
