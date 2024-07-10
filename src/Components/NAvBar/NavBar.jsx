@@ -11,9 +11,11 @@ function Navbar({ user }) {
         <li className="nav-item"><Link className="nav-link" to="/appointments">Appointments</Link></li>
         <li className="nav-item"><Link className="nav-link" to="/barbers">Barbers</Link></li>
         <li className="nav-item"><Link className="nav-link" to="/reviews">Reviews</Link></li>
-        <li className="nav-item"><Link className="nav-link" to="/profile">Profile</Link></li>
         {user ? (
-          <li className="nav-item"><span className="nav-link">Hello, {user.username}</span></li>
+          <>
+            <li className="nav-item"><Link className="nav-link" to={`/profile/${user.id}`}>Profile</Link></li>
+            <li className="nav-item"><span className="nav-link">Hello, {user.username}</span></li>
+          </>
         ) : (
           <>
             <li className="nav-item"><Link className="nav-link" to="/login">Login</Link></li>

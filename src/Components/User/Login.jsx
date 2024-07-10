@@ -11,17 +11,23 @@ function Login({ setUser }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     const endpoint = "users/login";
     try {
       const response = await addItem(endpoint, { username, password });
-      setUser(response);
-      navigate(`/profile/${response.id}`);
+      console.log(response); // Log the response to inspect
+  
+      if (response && response.success && response.payload.id) {
+        setUser(response.payload);
+        navigate(`/profile/${response.payload.id}`);
+      } else {
+        setError("Invalid username or password");
+      }
     } catch (err) {
       setError("Invalid username or password");
     }
   };
-
+  
   return (
     <div className="container mt-5">
       <h1 className="mb-4">Log In</h1>
@@ -53,12 +59,11 @@ function Login({ setUser }) {
             required
           />
         </div>
-      
-          <button type="submit" className="btn btn-primary">
-            Log In
-          </button>
-      
+        <button type="submit" className="btn btn-primary">
+          Log In
+        </button>
       </form>
+      {/* Link to profile removed because navigation is handled programmatically */}
     </div>
   );
 }

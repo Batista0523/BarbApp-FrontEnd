@@ -24,12 +24,13 @@ const fetchAllItems = (endpoint) => {
     .catch(handleError);
 };
 
-const fetchOneItem = (id, endpoint) => {
+const fetchOneItem = (endpoint, id)  => {
   return axios
     .get(`${baseURL}/${endpoint}/${id}`)
     .then(handleResponse)
     .catch(handleError);
 };
+
 
 const addItem = (endpoint, data) => {
   return axios
