@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { addItem } from "../../helpers/apiCalls";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Link } from "react-router-dom";
 
 function Register() {
   const initialState = {
@@ -148,6 +149,7 @@ function Register() {
         <button type="submit" className="btn btn-primary">
           Register
         </button>
+        <Link className="btn btn-primary" to="/login">Log In</Link>
       </form>
     </div>
   );

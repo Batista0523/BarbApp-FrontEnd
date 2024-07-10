@@ -41,9 +41,8 @@ import Login from "./Components/User/Login";
 import Home from "./Pages/Home";
 import Appointments from "./Pages/Appointments";
 import Reviews from "./Pages/Reviews";
-import Profile from "./Pages/Profile";
 import Barbers from "./Pages/Barbers";
-
+import UserProfile from "./Components/User/UserProfile";
 function App() {
   const [user, setUser] = useState(null);
 
@@ -52,12 +51,12 @@ function App() {
       <Navbar user={user} />
       <div className="container mt-5">
         <Routes>
-          
+
           <Route path="/" element={<Home />} />
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/barbers" element={<Barbers />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<UserProfile />} />
           <Route path="/login" element={<Login setUser={setUser} />} />
           <Route path="/register" element={<Register />} />
         </Routes>
