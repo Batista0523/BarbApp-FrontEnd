@@ -12,7 +12,13 @@ const UserProfile = () => {
       try {
         if (id) {
           const userDetails = await fetchOneItem(endpoint, id);
-          setUser(userDetails.success.payload);
+          console.log("User details:", userDetails);
+          if (userDetails && userDetails.success) {
+            setUser(userDetails.payload);
+          } else {
+            console.error("Invalid response format:", userDetails);
+            setUser(null); 
+          }
         }
       } catch (error) {
         console.error("Error fetching specific user", error);
@@ -23,8 +29,10 @@ const UserProfile = () => {
     getUserDetails();
   }, [id]);
 
+  console.log("User state:", user); 
+
   if (!user) {
-    return <div>Loading...</div>; // Handle loading state if needed
+    return <div>Loading...</div>; 
   }
 
   return (
@@ -32,6 +40,7 @@ const UserProfile = () => {
       <h1>Welcome to your profile, {user.name}</h1>
       <p>Username: {user.username}</p>
       <p>Email: {user.email}</p>
+      <p>role: {user.role}</p>
     </div>
   );
 };
