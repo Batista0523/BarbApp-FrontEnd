@@ -15,9 +15,9 @@ function Login({ setUser }) {
     const endpoint = "users/login";
     try {
       const response = await addItem(endpoint, { username, password });
-      console.log(response); // Log the response to inspect
+      console.log(response); 
   
-      if (response && response.success && response.payload.id) {
+      if ( response.payload.id) {
         setUser(response.payload);
         navigate(`/profile/${response.payload.id}`);
       } else {

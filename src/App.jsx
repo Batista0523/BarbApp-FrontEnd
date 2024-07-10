@@ -28,8 +28,8 @@ function App() {
           <Route path="/appointments" element={<Appointments />} />
           <Route path="/barbers" element={<Barbers />} />
           <Route path="/reviews" element={<Reviews />} />
-          <Route path="/profile/:id" element={<UserProfile />} />
-          <Route path="/login" element={<Login setUser={handleLogin} />} />
+          <Route path="/profile/:id"element={<UserProfile setUser={handleLogOff} />} />
+          <Route path="/login" element={<Login setUser={handleLogin}  />} />
           <Route path="/register" element={<Register />} />
         </Routes>
       </div>
