@@ -17,7 +17,7 @@ function Login({ setUser }) {
       const response = await addItem(endpoint, { username, password });
       console.log(response); 
   
-      if ( response.payload.id) {
+      if (response.payload.id) { // also i tried if (response && response.success && response.payload.id) for future references
         setUser(response.payload);
         navigate(`/profile/${response.payload.id}`);
       } else {
@@ -63,7 +63,6 @@ function Login({ setUser }) {
           Log In
         </button>
       </form>
-      {/* Link to profile removed because navigation is handled programmatically */}
     </div>
   );
 }

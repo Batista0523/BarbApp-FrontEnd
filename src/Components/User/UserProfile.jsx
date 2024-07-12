@@ -14,7 +14,7 @@ const UserProfile = () => {
         if (id) {
           const userDetails = await fetchOneItem(endpoint, id);
           console.log("User details:", userDetails);
-          if (userDetails && userDetails.success) {
+          if ( userDetails.success) {
             setUser(userDetails.payload);
           } else {
             console.error("Invalid response format:", userDetails);
