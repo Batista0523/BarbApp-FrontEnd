@@ -27,6 +27,7 @@ const UserProfile = () => {
       }
     };
 
+    
     getUserDetails();
   }, [id]);
 
