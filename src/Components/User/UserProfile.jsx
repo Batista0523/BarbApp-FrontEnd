@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchOneItem } from "../../helpers/apiCalls";
 import { useParams, useNavigate } from "react-router-dom";
 
-const UserProfile = () => {
+const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const endpoint = "users";
@@ -14,7 +14,7 @@ const UserProfile = () => {
         if (id) {
           const userDetails = await fetchOneItem(endpoint, id);
           console.log("User details:", userDetails);
-          if ( userDetails.success) {
+          if (userDetails.success) {
             setUser(userDetails.payload);
           } else {
             console.error("Invalid response format:", userDetails);
@@ -27,12 +27,12 @@ const UserProfile = () => {
       }
     };
 
-    
     getUserDetails();
   }, [id]);
 
   const handleLogOff = () => {
     setUser(null);
+    onLogOff(); // Call log-off function from props to update NavBar
     navigate("/"); // Send user home
   };
 
