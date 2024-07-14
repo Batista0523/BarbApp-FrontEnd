@@ -13,7 +13,7 @@ const UserProfile = ({ onLogOff }) => {
       try {
         if (id) {
           const userDetails = await fetchOneItem(endpoint, id);
-          console.log("User details:", userDetails);
+      
           if (userDetails.success) {
             setUser(userDetails.payload);
           } else {

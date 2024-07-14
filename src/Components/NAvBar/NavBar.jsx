@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function NavBar({ user,  }) {
+function NavBar({ user,}) {
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <ul className="navbar-nav me-auto mb-2 mb-lg-0">
