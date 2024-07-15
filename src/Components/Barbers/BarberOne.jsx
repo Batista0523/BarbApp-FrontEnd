@@ -1,6 +1,6 @@
 import React from 'react'
 
-function BarberList() {
+function BarberOne() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function BarberList() {
   )
 }
 
-export default BarberList
+export default BarberOne;
