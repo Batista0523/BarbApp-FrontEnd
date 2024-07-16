@@ -1,47 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { fetchOneItem } from '../../helpers/apiCalls'; 
+import React, { useState, useEffect } from "react";
+import { fetchAllItems } from "../../helpers/apiCalls";
+import { Link } from "react-router-dom";
 
-function BarberOne() {
-  const { id } = useParams();
-  const [barber, setBarber] = useState(null);
+function BarberDetails() {
+  const [barbers, setBarbers] = useState([]);
 
   useEffect(() => {
-    const endpoint = `users`; 
-    const fetchBarberDetails = async () => {
-      try {
-        if (id) {
-          const userDetails = await fetchOneItem(endpoint, id);
-      
-          if (userDetails.success) {
-            setBarber(userDetails.payload);
-          } else {
-            console.error("Invalid response format:", userDetails);
-            setBarber(null);
-          }
-        }
-      } catch (error) {
-        console.error('Error fetching barber details:', error);
-        setBarber(null); 
-      }
-    };
-
-    fetchBarberDetails();
-  }, [id]); 
-
-  if (!barber) {
-    return <div>Loading...</div>; 
-  }
+    const endpoint = "users";
+    fetchAllItems(endpoint)
+      .then((response) => {
+        const barberData = response.payload.filter(
+          (user) => user.role === "barber"
+        );
+        setBarbers(barberData);
+      })
+      .catch((error) => {
+        console.error("Error fetching barbers:", error);
+      });
+  }, []);
 
   return (
-    // need to add inputs to add reviews and appointment to eh specific barber
     <div>
-      <h1>{barber.name}'s Details</h1>
-      <p>{barber.profile_info}</p>
-      <p>{barber.phone_number}</p>
-      <p>{barber.address}</p>
+      <h1>Barbers</h1>
+      <ul>
+        {barbers.map((barber) => (
+          <li key={barber.id}>
+            <Link to={`/oneBarber/${barber.id}`}>
+              <h2>{barber.name}</h2>
+             
+            </Link>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-export default BarberOne;
+export default BarberDetails;

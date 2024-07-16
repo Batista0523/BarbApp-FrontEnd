@@ -1,12 +1,11 @@
 import React from "react";
-import BarberDetails from "../Components/Barbers/BarberDetails"
-
+import BarberOne from "../Components/Barbers/BarberOne"
 
 function Barbers() {
 
   return (
     <div>
-     <BarberDetails/>
+     <BarberOne/>
     </div>
   );
 }
