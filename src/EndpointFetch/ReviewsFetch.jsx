@@ -1,6 +1,6 @@
 import React from 'react'
 
-function AppointmentsDetails() {
+function ReviewsFetch() {
   return (
     <div>
       
@@ -8,4 +8,4 @@ function AppointmentsDetails() {
   )
 }
 
-export default AppointmentsDetails
+export default ReviewsFetch
