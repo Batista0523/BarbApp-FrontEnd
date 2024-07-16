@@ -7,14 +7,13 @@ function BarberDetails() {
   const [barber, setBarber] = useState(null);
   const [barberReview, setBarberReview] = useState(null);
 
-  // fecth details for one barber
+  // Fetch details for one barber
   useEffect(() => {
     const userEndpoint = `users`;
     const fetchBarberDetails = async () => {
       try {
         if (id) {
           const userDetails = await fetchOneItem(userEndpoint, id);
-
           if (userDetails.success) {
             setBarber(userDetails.payload);
           } else {
@@ -27,22 +26,20 @@ function BarberDetails() {
         setBarber(null);
       }
     };
-
     fetchBarberDetails();
   }, [id]);
 
-
+  // Fetch reviews for the barber
   useEffect(() => {
     const reviewEndpoint = "reviews";
-    const fecthBarberReviews = async () => {
+    const fetchBarberReviews = async () => {
       try {
         if (id) {
-          const barberReview = await fetchOneItem(reviewEndpoint, id);
-          console.log("here is barbeReview", barberReview)
-          if (barberReview ) {
-            setBarberReview(barberReview.payload);
+          const fetchedBarberReview = await fetchOneItem(reviewEndpoint, id);
+          if (fetchedBarberReview) {
+            setBarberReview(fetchedBarberReview);
           } else {
-            console.error("invalid response format", barberReview);
+            console.error("Invalid response format", fetchedBarberReview);
             setBarberReview(null);
           }
         }
@@ -51,35 +48,43 @@ function BarberDetails() {
         setBarberReview(null);
       }
     };
-    fecthBarberReviews();
+    fetchBarberReviews();
   }, [id]);
 
-
+  // Helper function to display star rating
+  const renderStars = (rating) => {
+    const stars = [];
+    for (let i = 0; i < rating; i++) {
+      stars.push("⭐");
+    }
+    return stars.join("");
+  };
 
   return (
-    // need to add inputs to add reviews and appointment to eh specific barber
-    <div>
-    {!barber ? (
-      <div>Loading barber details...</div>
-    ) : (
-      <>
-        <h1>{barber.name}'s Details</h1>
-        <p>{barber.profile_info}</p>
-        <p>{barber.phone_number}</p>
-        <p>{barber.address}</p>
-        <h4>Reviews</h4>
-        {!barberReview ? (
-          <div>Loading reviews...</div>
-        ) : (
-          <>
-            <p>Rating: {barberReview.rating}</p>
-            <p>Review: {barberReview.review_text}</p>
-          </>
-        )}
-      </>
-    )}
-  </div>
-);
+    <div className="barber-details-container">
+      {!barber ? (
+        <div>Loading barber details...</div>
+      ) : (
+        <div>
+          <h1>{barber.name}'s Details</h1>
+          <p>{barber.profile_info}</p>
+          <p>{barber.phone_number}</p>
+          <p>{barber.address}</p>
+          <div className="review-container">
+            <h4>Reviews</h4>
+            {!barberReview ? (
+              <div>Loading reviews...</div>
+            ) : (
+              <div>
+                <p>Rating: {renderStars(barberReview.rating)}</p>
+                <p>Comments: {barberReview.review_text}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default BarberDetails;
