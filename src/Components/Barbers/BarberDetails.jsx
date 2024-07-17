@@ -31,6 +31,7 @@ function BarberDetails() {
   }, [id]);
 
 
+
   
   // Fetch reviews for the barber
   useEffect(() => {
