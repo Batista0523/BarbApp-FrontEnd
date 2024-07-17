@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { fetchOneItem ,} from "../../helpers/apiCalls";
+import { fetchOneItem ,fetchItemsByBarberId, fetchAllItems} from "../../helpers/apiCalls";
 
 function BarberDetails() {
   const { id } = useParams();
@@ -30,23 +30,25 @@ function BarberDetails() {
     fetchBarberDetails();
   }, [id]);
 
+
+  
   // Fetch reviews for the barber
   useEffect(() => {
     const reviewEndpoint = "reviews";
     const fetchBarberReviews = async () => {
       try {
         if (id) {
-          const fetchedBarberReview = await fetchOneItem(reviewEndpoint, id);
-          if (fetchedBarberReview) {
-            console.log(fetchedBarberReview, "reviews");
-            setBarberReview(fetchedBarberReview);
+          const fetchedBarberReviews = await fetchOneItem(reviewEndpoint, id);
+          if (fetchedBarberReviews) {
+            console.log('review new' , fetchedBarberReviews)
+            setBarberReview(fetchedBarberReviews);
           } else {
-            console.error("Invalid response format", fetchedBarberReview);
+            console.error("Invalid response format", fetchedBarberReviews);
             setBarberReview([]);
           }
         }
       } catch (error) {
-        console.error("Error fetching barber review", error);
+        console.error("Error fetching barber reviews", error);
         setBarberReview([]);
       }
     };
