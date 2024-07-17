@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchAllItems } from "../../helpers/apiCalls";
 import { Link } from "react-router-dom";
 
-function BarberDetails() {
+function Barbers() {
   const [barbers, setBarbers] = useState([]);
 
   useEffect(() => {
@@ -27,7 +27,6 @@ function BarberDetails() {
           <li key={barber.id}>
             <Link to={`/oneBarber/${barber.id}`}>
               <h2>{barber.name}</h2>
-             
             </Link>
           </li>
         ))}
@@ -36,4 +35,4 @@ function BarberDetails() {
   );
 }
 
-export default BarberDetails;
+export default Barbers;

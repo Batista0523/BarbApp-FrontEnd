@@ -31,6 +31,12 @@ const fetchOneItem = (endpoint, id)  => {
     .catch(handleError);
 };
 
+const fetchItemsByBarberId = (endpoint, barberId) => {
+  return axios
+    .get(`${baseURL}/${endpoint}?barberId=${barberId}`)
+    .then(handleResponse)
+    .catch(handleError);
+};
 
 const addItem = (endpoint, data) => {
   return axios
@@ -61,4 +67,4 @@ const deleteItem = (endpoint, id) => {
     .catch(handleError);
 };
 
-export { fetchAllItems, fetchOneItem, addItem, updateItem, deleteItem };
+export { fetchAllItems, fetchOneItem, addItem, updateItem, deleteItem,fetchItemsByBarberId  };

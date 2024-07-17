@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { fetchOneItem } from "../../helpers/apiCalls";
+import { fetchOneItem ,} from "../../helpers/apiCalls";
 
 function BarberDetails() {
   const { id } = useParams();
-  const [barber, setBarber] = useState(null);
-  const [barberReview, setBarberReview] = useState(null);
-  const [barberServices, setbarberServices] = useState(null);
-  const [barberAppointments, setBarberAppointments] = useState(null);
+  const [barber, setBarber] = useState([]);
+  const [barberReview, setBarberReview] = useState([]);
+  const [barberServices, setbarberServices] = useState([]);
+  const [barberAppointments, setBarberAppointments] = useState([]);
   // Fetch details for one barber
   useEffect(() => {
     const userEndpoint = `users`;
@@ -19,12 +19,12 @@ function BarberDetails() {
             setBarber(userDetails.payload);
           } else {
             console.error("Invalid response format:", userDetails);
-            setBarber(null);
+            setBarber([]);
           }
         }
       } catch (error) {
         console.error("Error fetching barber details:", error);
-        setBarber(null);
+        setBarber([]);
       }
     };
     fetchBarberDetails();
@@ -42,12 +42,12 @@ function BarberDetails() {
             setBarberReview(fetchedBarberReview);
           } else {
             console.error("Invalid response format", fetchedBarberReview);
-            setBarberReview(null);
+            setBarberReview([]);
           }
         }
       } catch (error) {
         console.error("Error fetching barber review", error);
-        setBarberReview(null);
+        setBarberReview([]);
       }
     };
     fetchBarberReviews();
@@ -76,12 +76,12 @@ function BarberDetails() {
             setbarberServices(fetchedBarberServices.payload);
           } else {
             console.error("Invalid response format", fetchedBarberServices);
-            setbarberServices(null);
+            setbarberServices([]);
           }
         }
       } catch (error) {
         console.error("Error fetching services", error);
-        setbarberServices(null);
+        setbarberServices([]);
       }
     };
     fetchServices();
@@ -103,12 +103,12 @@ function BarberDetails() {
             setBarberAppointments(fetchedBarberAppointments.payload);
           } else {
             console.error("Invalid response format", fetchedBarberAppointments);
-            setBarberAppointments(null);
+            setBarberAppointments([]);
           }
         }
       } catch (error) {
         console.error("Error fetching services", error);
-        setBarberAppointments(null);
+        setBarberAppointments([]);
       }
     };
     fetchAppointments();
