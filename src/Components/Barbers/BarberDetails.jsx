@@ -30,8 +30,6 @@ function BarberDetails() {
     fetchBarberDetails();
   }, [id]);
 
-
-
   
   // Fetch reviews for the barber
   useEffect(() => {
