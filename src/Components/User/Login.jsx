@@ -2,30 +2,28 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { addItem } from "../../helpers/apiCalls";
 import "bootstrap/dist/css/bootstrap.min.css";
-
-function Login({ setUser }) {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+import { useAuth } from "../../AuthContext";
+function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+  const { login } = useAuth(); // Use login function from context
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    const endpoint = "users/login";
+    const endpoint = 'users/login';
     try {
       const response = await addItem(endpoint, { username, password });
-      console.log(response);
-
       if (response.payload.id) {
-        // also i tried if (response && response.success && response.payload.id) for future references
-        setUser(response.payload);
+        login(response.payload); // Set user data in context
         navigate(`/profile/${response.payload.id}`);
       } else {
-        setError("Invalid username or password");
+        setError('Invalid username or password');
       }
     } catch (err) {
-      setError("Invalid username or password");
+      setError('Invalid username or password');
     }
   };
 

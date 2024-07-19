@@ -1,8 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../../AuthContext";
 
-function NavBar({ user, onLogOff }) {
+function NavBar() {
+  const { user, logout } = useAuth(); // Use user and logout from context
+
   return (
     <nav className="navbar navbar-expand-lg navbar-light bg-light">
       <ul className="navbar-nav me-auto mb-2 mb-lg-0">
@@ -29,7 +32,7 @@ function NavBar({ user, onLogOff }) {
               </Link>
             </li>
             <li className="nav-item">
-              <button className="nav-link btn" onClick={onLogOff}>
+              <button className="nav-link btn" onClick={logout}>
                 Log Out
               </button>
             </li>
