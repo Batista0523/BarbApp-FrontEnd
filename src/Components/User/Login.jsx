@@ -11,13 +11,14 @@ function Login({ setUser }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-  
+
     const endpoint = "users/login";
     try {
       const response = await addItem(endpoint, { username, password });
-      console.log(response); 
-  
-      if (response.payload.id) { // also i tried if (response && response.success && response.payload.id) for future references
+      console.log(response);
+
+      if (response.payload.id) {
+        // also i tried if (response && response.success && response.payload.id) for future references
         setUser(response.payload);
         navigate(`/profile/${response.payload.id}`);
       } else {
@@ -27,7 +28,7 @@ function Login({ setUser }) {
       setError("Invalid username or password");
     }
   };
-  
+
   return (
     <div className="container mt-5">
       <h1 className="mb-4">Log In</h1>

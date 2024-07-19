@@ -41,15 +41,12 @@ function BarberDetails() {
       try {
         if (id) {
           let fetchedBarberReviews = await fetchAllItems(reviewEndpoint, id);
-     
           if (fetchedBarberReviews.success) {
-            
-            let Reviews = fetchedBarberReviews.payload
-           
-            Reviews = Reviews.filter( review => {
-            
-              return review.barber_id === Number(id)} )
-           
+            let Reviews = fetchedBarberReviews.payload;
+             Reviews = Reviews.filter((review) => {
+              return review.barber_id === Number(id);
+            });
+
             setBarberReview(Reviews);
           } else {
             console.error("Invalid response format", Reviews);
@@ -63,8 +60,8 @@ function BarberDetails() {
     };
     fetchBarberReviews();
   }, [id]);
-  console.log("review new",barberReview);
   
+
   // Handle input change
   const handleInputChange = (e) => {
     const { id, value } = e.target;
@@ -76,7 +73,7 @@ function BarberDetails() {
     e.preventDefault();
     const toCreateReviewEndpoint = "reviews";
     try {
-      const reviewData = { ...formData, barber_id: id };
+      const reviewData = { ...formData, barber_id: id, customer_id: id };
       const response = await addItem(toCreateReviewEndpoint, reviewData);
       if (response) {
         console.log("response to review post", response);
@@ -89,7 +86,11 @@ function BarberDetails() {
       }
     } catch (error) {
       console.error("error creating review", error);
-      if (error.response && error.response.data && error.response.data.message) {
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
         const { message } = error.response.data;
         setNotification(message);
       } else {
@@ -113,10 +114,16 @@ function BarberDetails() {
     const fetchServices = async () => {
       try {
         if (id) {
-          const fetchedBarberServices = await fetchOneItem(servicesEndpoint, id);
+          console.log(id,'here is id')
+          let fetchedBarberServices = await fetchAllItems(
+            servicesEndpoint,
+            id
+          );
           if (fetchedBarberServices.success) {
-            console.log(fetchedBarberServices, "services");
-            setBarberServices(fetchedBarberServices.payload);
+            let Services = fetchedBarberServices.payload
+            Services = Services.filter((services) => {return services.barber_id === Number(id)})
+            console.log(Services,id, "services and id");
+            setBarberServices(Services);
           } else {
             console.error("Invalid response format", fetchedBarberServices);
             setBarberServices([]);
@@ -136,7 +143,10 @@ function BarberDetails() {
     const fetchAppointments = async () => {
       try {
         if (id) {
-          const fetchedBarberAppointments = await fetchOneItem(appointmentsEndpoint, id);
+          const fetchedBarberAppointments = await fetchOneItem(
+            appointmentsEndpoint,
+            id
+          );
           if (fetchedBarberAppointments.success) {
             console.log(fetchedBarberAppointments, "appointments");
             setBarberAppointments(fetchedBarberAppointments.payload);
@@ -170,13 +180,12 @@ function BarberDetails() {
             {!barberReview ? (
               <div>Loading reviews...</div>
             ) : (
-              barberReview.map((barberReviews , index) => (
+              barberReview.map((barberReviews, index) => (
                 <div key={index}>
-
-              <div>
-                <p>Rating: {renderStars(barberReviews.rating)}</p>
-                <p>Comments: {barberReviews.review_text}</p>
-              </div>
+                  <div>
+                    <p>Rating: {renderStars(barberReviews.rating)}</p>
+                    <p>Comments: {barberReviews.review_text}</p>
+                  </div>
                 </div>
               ))
             )}
@@ -216,9 +225,14 @@ function BarberDetails() {
             {!barberServices ? (
               <div>Loading services...</div>
             ) : (
+              barberServices.map((barberService, index) => (
+                <div key={index}>
               <div>
-                <p>{`${barberServices.service_name} = price: ${barberServices.price}`}</p>
+                <p>{`${barberService.service_name} = price: ${barberService.price}`}</p>
               </div>
+                  
+                </div>
+              ))
             )}
           </div>
           <div className="appointments-container">
