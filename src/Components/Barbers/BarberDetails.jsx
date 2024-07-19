@@ -107,7 +107,6 @@ function BarberDetails() {
     return stars.join("");
   };
 
-  
   useEffect(() => {
     const servicesEndpoint = "services";
     const appointmentsEndpoint = "appointments";
@@ -156,6 +155,19 @@ function BarberDetails() {
 
     fetchServicesAndAppointments();
   }, [id]);
+  // Utility function to format date
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+ // Utility function to format time
+const formatTime = (timeString) => {
+  const [hour, minute] = timeString.split(':');
+  const period = hour >= 12 ? 'PM' : 'AM';
+  const formattedHour = hour % 12 || 12; // Convert to 12-hour format
+  return `${formattedHour}:${minute} ${period}`;
+};
 
   return (
     <div className="barber-details-container">
@@ -239,8 +251,8 @@ function BarberDetails() {
                 return (
                   <div key={index}>
                     <div>
-                      <p>Date: {appointment.appointment_date}</p>
-                      <p>Time: {appointment.appointment_time}</p>
+                      <p>Date: {formatDate(appointment.appointment_date)}</p>
+                      <p>Time: {formatTime(appointment.appointment_time)}</p>
                       <p>Status: {appointment.status}</p>
                       <p>
                         Service chooses:{" "}
