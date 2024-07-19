@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
+import { useNavigate } from "react-router-dom";
 function BarberDetails() {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
@@ -13,13 +14,12 @@ function BarberDetails() {
   const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
   const [formData, setFormData] = useState(initialize);
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   useEffect(() => {
-  
     const userEndpoint = "users";
     const reviewEndpoint = "reviews";
     const servicesEndpoint = "services";
     const appointmentsEndpoint = "appointments";
-
     const fetchAllData = async () => {
       try {
         if (id) {
@@ -105,11 +105,16 @@ function BarberDetails() {
   // Handle review post
   const handleReviewPost = async (e) => {
     e.preventDefault();
-
     const toCreateReviewEndpoint = "reviews";
     try {
-   
-      const reviewData = { ...formData, barber_id: id, customer_id: currentUser.id};
+      if (!currentUser) {
+        alert("must log in before post review");
+      }
+      const reviewData = {
+        ...formData,
+        barber_id: id,
+        customer_id: currentUser.id,
+      };
       const response = await addItem(toCreateReviewEndpoint, reviewData);
       if (response) {
         console.log("Review Added", response);
@@ -122,8 +127,9 @@ function BarberDetails() {
     } catch (error) {
       console.error("Error creating review", error);
       setNotification(
-        error.response?.data?.message || "Unexpected error occurred"
+        error.response?.data?.message || "Log In first"
       );
+      navigate('/login')
     }
   };
 
