@@ -114,7 +114,7 @@ function BarberDetails() {
     const fetchServices = async () => {
       try {
         if (id) {
-          console.log(id,'here is id')
+       
           let fetchedBarberServices = await fetchAllItems(
             servicesEndpoint,
             id
@@ -122,7 +122,7 @@ function BarberDetails() {
           if (fetchedBarberServices.success) {
             let Services = fetchedBarberServices.payload
             Services = Services.filter((services) => {return services.barber_id === Number(id)})
-            console.log(Services,id, "services and id");
+            
             setBarberServices(Services);
           } else {
             console.error("Invalid response format", fetchedBarberServices);
@@ -143,13 +143,16 @@ function BarberDetails() {
     const fetchAppointments = async () => {
       try {
         if (id) {
-          const fetchedBarberAppointments = await fetchOneItem(
+       
+          let fetchedBarberAppointments = await fetchAllItems(
             appointmentsEndpoint,
             id
           );
+       
           if (fetchedBarberAppointments.success) {
-            console.log(fetchedBarberAppointments, "appointments");
-            setBarberAppointments(fetchedBarberAppointments.payload);
+            let Appointmens = fetchedBarberAppointments.payload
+            Appointmens = Appointmens.filter((appointments) => {return appointments.barber_id === Number(id)})
+            setBarberAppointments(Appointmens);
           } else {
             console.error("Invalid response format", fetchedBarberAppointments);
             setBarberAppointments([]);
@@ -240,11 +243,16 @@ function BarberDetails() {
             {!barberAppointments ? (
               <div>Loading appointments...</div>
             ) : (
-              <div>
-                <p>Date: {barberAppointments.appointment_date}</p>
-                <p>Time: {barberAppointments.appointment_time}</p>
-                <p>Status: {barberAppointments.status}</p>
-              </div>
+              barberAppointments.map((appointments, index) => (
+                <div key={index}>
+                 <div>
+                  <p>{appointments.appointment_date}</p>
+                  <p>{appointments.appointment_time}</p>
+                  <p>{appointments.status}</p>
+                 </div>
+                </div>
+              ))
+             
             )}
           </div>
         </div>
