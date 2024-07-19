@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
-
+import { useAuth } from "../../AuthContext";
 function BarberDetails() {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
   const [barberReview, setBarberReview] = useState([]);
   const [barberServices, setBarberServices] = useState([]);
   const [barberAppointments, setBarberAppointments] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [notification, setNotification] = useState(null);
   const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
   const [formData, setFormData] = useState(initialize);
+  const { user: currentUser } = useAuth();
   useEffect(() => {
+  
     const userEndpoint = "users";
     const reviewEndpoint = "reviews";
     const servicesEndpoint = "services";
@@ -20,7 +23,7 @@ function BarberDetails() {
     const fetchAllData = async () => {
       try {
         if (id) {
-          //fetch barber details
+          // Fetch barber details
           const userDetails = await fetchOneItem(userEndpoint, id);
           if (userDetails.success) {
             setBarber(userDetails.payload);
@@ -28,46 +31,57 @@ function BarberDetails() {
             console.error("Invalid response format:", userDetails);
             setBarber([]);
           }
-         
+
+          // Fetch services, appointments, reviews, and customers
           const [
             fetchedBarberServices,
             fetchedBarberAppointments,
             fetchedBarberReviews,
+            fetchedCustomers,
           ] = await Promise.all([
             fetchAllItems(servicesEndpoint, id),
             fetchAllItems(appointmentsEndpoint, id),
             fetchAllItems(reviewEndpoint, id),
+            fetchAllItems(userEndpoint), // Fetch all users
           ]);
+
           if (
             fetchedBarberServices.success &&
             fetchedBarberAppointments.success &&
-            fetchedBarberReviews
+            fetchedBarberReviews.success &&
+            fetchedCustomers.success
           ) {
             let Services = fetchedBarberServices.payload;
             let Appointments = fetchedBarberAppointments.payload;
             let Reviews = fetchedBarberReviews.payload;
-            Services = Services.filter((service) => {
-              return service.barber_id === Number(id);
-            });
-            Appointments = Appointments.filter((appointments) => {
-              return appointments.barber_id === Number(id);
-            });
-            Reviews = Reviews.filter((review) => {
-              return review.barber_id === Number(id);
-            });
+            let Customers = fetchedCustomers.payload;
+
+            Services = Services.filter(
+              (service) => service.barber_id === Number(id)
+            );
+            Appointments = Appointments.filter(
+              (appointment) => appointment.barber_id === Number(id)
+            );
+            Reviews = Reviews.filter(
+              (review) => review.barber_id === Number(id)
+            );
+
             setBarberReview(Reviews);
             setBarberServices(Services);
             setBarberAppointments(Appointments);
+            setCustomers(Customers);
           } else {
             console.error(
               "Invalid response format",
               fetchedBarberServices,
               fetchedBarberAppointments,
-              fetchedBarberReviews
+              fetchedBarberReviews,
+              fetchedCustomers
             );
             setBarberReview([]);
             setBarberServices([]);
             setBarberAppointments([]);
+            setCustomers([]);
           }
         }
       } catch (error) {
@@ -76,6 +90,7 @@ function BarberDetails() {
         setBarberReview([]);
         setBarberServices([]);
         setBarberAppointments([]);
+        setCustomers([]);
       }
     };
     fetchAllData();
@@ -90,9 +105,11 @@ function BarberDetails() {
   // Handle review post
   const handleReviewPost = async (e) => {
     e.preventDefault();
+
     const toCreateReviewEndpoint = "reviews";
     try {
-      const reviewData = { ...formData, barber_id: id, customer_id: id };
+   
+      const reviewData = { ...formData, barber_id: id, customer_id: currentUser.id};
       const response = await addItem(toCreateReviewEndpoint, reviewData);
       if (response) {
         console.log("Review Added", response);
@@ -128,8 +145,6 @@ function BarberDetails() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
-
-
   return (
     <div className="barber-details-container">
       {!barber ? (
@@ -138,9 +153,11 @@ function BarberDetails() {
         <div className="all-container">
           <div className="details-container">
             <h1>{barber.name}'s Details</h1>
+            <p>Role: {barber.role}</p>
             <p>{barber.profile_info}</p>
-            <p>{barber.phone_number}</p>
-            <p>{barber.address}</p>
+            <p>Phone Number: {barber.phone_number}</p>
+            <p>Location: {barber.address}</p>
+            <p>Email: {barber.email}</p>
           </div>
           <div className="review-container">
             <h4>Reviews</h4>
@@ -209,14 +226,21 @@ function BarberDetails() {
                 const service = barberServices.find(
                   (service) => service.id === appointment.service_id
                 );
+                const customer = customers.find(
+                  (customer) => customer.id === appointment.customer_id
+                );
                 return (
                   <div key={index}>
                     <div>
                       <p>Date: {formatDate(appointment.appointment_date)}</p>
                       <p>Time: {formatTime(appointment.appointment_time)}</p>
+                      <p>
+                        Customer:{" "}
+                        {customer ? customer.name : appointment.customer_id}
+                      </p>
                       <p>Status: {appointment.status}</p>
                       <p>
-                        Service chooses:{" "}
+                        Service chosen:{" "}
                         {service
                           ? `${service.service_name} - $${service.price}`
                           : "Service not found"}
