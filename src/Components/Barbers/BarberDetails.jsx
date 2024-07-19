@@ -43,7 +43,7 @@ function BarberDetails() {
           let fetchedBarberReviews = await fetchAllItems(reviewEndpoint, id);
           if (fetchedBarberReviews.success) {
             let Reviews = fetchedBarberReviews.payload;
-             Reviews = Reviews.filter((review) => {
+            Reviews = Reviews.filter((review) => {
               return review.barber_id === Number(id);
             });
 
@@ -60,7 +60,6 @@ function BarberDetails() {
     };
     fetchBarberReviews();
   }, [id]);
-  
 
   // Handle input change
   const handleInputChange = (e) => {
@@ -108,62 +107,54 @@ function BarberDetails() {
     return stars.join("");
   };
 
-  // Fetch services for barber
+  
   useEffect(() => {
     const servicesEndpoint = "services";
-    const fetchServices = async () => {
-      try {
-        if (id) {
-       
-          let fetchedBarberServices = await fetchAllItems(
-            servicesEndpoint,
-            id
-          );
-          if (fetchedBarberServices.success) {
-            let Services = fetchedBarberServices.payload
-            Services = Services.filter((services) => {return services.barber_id === Number(id)})
-            
-            setBarberServices(Services);
-          } else {
-            console.error("Invalid response format", fetchedBarberServices);
-            setBarberServices([]);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching services", error);
-        setBarberServices([]);
-      }
-    };
-    fetchServices();
-  }, [id]);
-
-  // Fetch appointments
-  useEffect(() => {
     const appointmentsEndpoint = "appointments";
-    const fetchAppointments = async () => {
+
+    const fetchServicesAndAppointments = async () => {
       try {
         if (id) {
-       
-          let fetchedBarberAppointments = await fetchAllItems(
-            appointmentsEndpoint,
-            id
-          );
-       
-          if (fetchedBarberAppointments.success) {
-            let Appointmens = fetchedBarberAppointments.payload
-            Appointmens = Appointmens.filter((appointments) => {return appointments.barber_id === Number(id)})
-            setBarberAppointments(Appointmens);
+          const [fetchedBarberServices, fetchedBarberAppointments] =
+            await Promise.all([
+              fetchAllItems(servicesEndpoint, id),
+              fetchAllItems(appointmentsEndpoint, id),
+            ]);
+
+          if (
+            fetchedBarberServices.success &&
+            fetchedBarberAppointments.success
+          ) {
+            let services = fetchedBarberServices.payload;
+            services = services.filter(
+              (service) => service.barber_id === Number(id)
+            );
+
+            let appointments = fetchedBarberAppointments.payload;
+            appointments = appointments.filter(
+              (appointment) => appointment.barber_id === Number(id)
+            );
+
+            setBarberServices(services);
+            setBarberAppointments(appointments);
           } else {
-            console.error("Invalid response format", fetchedBarberAppointments);
+            console.error(
+              "Invalid response format",
+              fetchedBarberServices,
+              fetchedBarberAppointments
+            );
+            setBarberServices([]);
             setBarberAppointments([]);
           }
         }
       } catch (error) {
-        console.error("Error fetching services", error);
+        console.error("Error fetching services and appointments", error);
+        setBarberServices([]);
         setBarberAppointments([]);
       }
     };
-    fetchAppointments();
+
+    fetchServicesAndAppointments();
   }, [id]);
 
   return (
@@ -230,29 +221,37 @@ function BarberDetails() {
             ) : (
               barberServices.map((barberService, index) => (
                 <div key={index}>
-              <div>
-                <p>{`${barberService.service_name} = price: ${barberService.price}`}</p>
-              </div>
-                  
+                  <p>{`${barberService.service_name} = price: ${barberService.price}`}</p>
                 </div>
               ))
             )}
           </div>
+
           <div className="appointments-container">
             <h4>Appointments</h4>
             {!barberAppointments ? (
               <div>Loading appointments...</div>
             ) : (
-              barberAppointments.map((appointments, index) => (
-                <div key={index}>
-                 <div>
-                  <p>{appointments.appointment_date}</p>
-                  <p>{appointments.appointment_time}</p>
-                  <p>{appointments.status}</p>
-                 </div>
-                </div>
-              ))
-             
+              barberAppointments.map((appointment, index) => {
+                const service = barberServices.find(
+                  (service) => service.id === appointment.service_id
+                );
+                return (
+                  <div key={index}>
+                    <div>
+                      <p>Date: {appointment.appointment_date}</p>
+                      <p>Time: {appointment.appointment_time}</p>
+                      <p>Status: {appointment.status}</p>
+                      <p>
+                        Service chooses:{" "}
+                        {service
+                          ? `${service.service_name} - $${service.price}`
+                          : "Service not found"}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
