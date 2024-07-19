@@ -9,6 +9,7 @@ import Reviews from "./Pages/Reviews";
 import Barbers from "./Pages/Barbers";
 import UserProfile from "./Components/User/UserProfile";
 import BarberDetails from "./Components/Barbers/BarberDetails";
+
 function App() {
   const { user, logout } = useAuth();
 
@@ -21,15 +22,15 @@ function App() {
           <Route path="/barbers" element={<Barbers />} />
           <Route 
             path="/oneBarber/:id" 
-            element={user ? <BarberDetails /> : <Navigate to="/login" />} 
+            element={ <BarberDetails />} 
           />
           <Route path="/reviews" element={<Reviews />} />
           <Route 
             path="/profile/:id" 
             element={user ? <UserProfile onLogOff={logout} /> : <Navigate to="/login" />} 
           />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
+          <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         </Routes>
       </div>
     </Router>

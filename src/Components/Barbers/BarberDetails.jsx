@@ -3,19 +3,14 @@ import { useParams } from "react-router-dom";
 import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
 
 function BarberDetails() {
-  // Extract the barber ID from URL parameters
   const { id } = useParams();
-  
-  // State variables to store data and manage component state
-  const [barber, setBarber] = useState([]); // Barber details
-  const [barberReview, setBarberReview] = useState([]); // Reviews for the barber
-  const [barberServices, setBarberServices] = useState([]); // Services offered by the barber
-  const [barberAppointments, setBarberAppointments] = useState([]); // Appointments for the barber
-  const [notification, setNotification] = useState(null); // Notification messages for errors or success
-  const [initialize, setInitialize] = useState({ rating: "", review_text: "" }); // Initial state for review form
-  const [formData, setFormData] = useState(initialize); // State to manage review form data
-
-  // Effect hook to fetch data when component mounts or ID changes
+  const [barber, setBarber] = useState([]);
+  const [barberReview, setBarberReview] = useState([]);
+  const [barberServices, setBarberServices] = useState([]);
+  const [barberAppointments, setBarberAppointments] = useState([]);
+  const [notification, setNotification] = useState(null);
+  const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
+  const [formData, setFormData] = useState(initialize);
   useEffect(() => {
     const userEndpoint = "users";
     const reviewEndpoint = "reviews";
@@ -25,7 +20,7 @@ function BarberDetails() {
     const fetchAllData = async () => {
       try {
         if (id) {
-          // Fetch barber details
+          //fetch barber details
           const userDetails = await fetchOneItem(userEndpoint, id);
           if (userDetails.success) {
             setBarber(userDetails.payload);
@@ -33,8 +28,7 @@ function BarberDetails() {
             console.error("Invalid response format:", userDetails);
             setBarber([]);
           }
-
-          // Fetch barber services, appointments, and reviews concurrently
+         
           const [
             fetchedBarberServices,
             fetchedBarberAppointments,
@@ -44,23 +38,23 @@ function BarberDetails() {
             fetchAllItems(appointmentsEndpoint, id),
             fetchAllItems(reviewEndpoint, id),
           ]);
-
-          // Check if all responses are successful and filter data
           if (
             fetchedBarberServices.success &&
             fetchedBarberAppointments.success &&
-            fetchedBarberReviews.success
+            fetchedBarberReviews
           ) {
             let Services = fetchedBarberServices.payload;
             let Appointments = fetchedBarberAppointments.payload;
             let Reviews = fetchedBarberReviews.payload;
-
-            // Filter data to include only items related to the current barber
-            Services = Services.filter((service) => service.barber_id === Number(id));
-            Appointments = Appointments.filter((appointment) => appointment.barber_id === Number(id));
-            Reviews = Reviews.filter((review) => review.barber_id === Number(id));
-
-            // Update state with filtered data
+            Services = Services.filter((service) => {
+              return service.barber_id === Number(id);
+            });
+            Appointments = Appointments.filter((appointments) => {
+              return appointments.barber_id === Number(id);
+            });
+            Reviews = Reviews.filter((review) => {
+              return review.barber_id === Number(id);
+            });
             setBarberReview(Reviews);
             setBarberServices(Services);
             setBarberAppointments(Appointments);
@@ -87,13 +81,13 @@ function BarberDetails() {
     fetchAllData();
   }, [id]);
 
-  // Handle input change for the review form
+  // Handle input change
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
 
-  // Handle review form submission
+  // Handle review post
   const handleReviewPost = async (e) => {
     e.preventDefault();
     const toCreateReviewEndpoint = "reviews";
@@ -121,13 +115,12 @@ function BarberDetails() {
     return "⭐".repeat(rating);
   };
 
-  // Utility function to format date
+  // Utility functions for date and time formatting
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "long", day: "numeric" };
     return new Date(dateString).toLocaleDateString(undefined, options);
   };
 
-  // Utility function to format time
   const formatTime = (timeString) => {
     const [hour, minute] = timeString.split(":");
     const period = hour >= 12 ? "PM" : "AM";
@@ -135,21 +128,20 @@ function BarberDetails() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+
+
   return (
     <div className="barber-details-container">
       {!barber ? (
         <div>Loading barber details...</div>
       ) : (
         <div className="all-container">
-          {/* Barber details */}
           <div className="details-container">
             <h1>{barber.name}'s Details</h1>
             <p>{barber.profile_info}</p>
             <p>{barber.phone_number}</p>
             <p>{barber.address}</p>
           </div>
-
-          {/* Barber reviews */}
           <div className="review-container">
             <h4>Reviews</h4>
             {!barberReview ? (
@@ -195,8 +187,6 @@ function BarberDetails() {
               </button>
             </form>
           </div>
-
-          {/* Barber services */}
           <div className="services-container">
             <h4>Services</h4>
             {!barberServices ? (
@@ -210,7 +200,6 @@ function BarberDetails() {
             )}
           </div>
 
-          {/* Barber appointments */}
           <div className="appointments-container">
             <h4>Appointments</h4>
             {!barberAppointments ? (
@@ -227,7 +216,7 @@ function BarberDetails() {
                       <p>Time: {formatTime(appointment.appointment_time)}</p>
                       <p>Status: {appointment.status}</p>
                       <p>
-                        Service chosen:{" "}
+                        Service chooses:{" "}
                         {service
                           ? `${service.service_name} - $${service.price}`
                           : "Service not found"}

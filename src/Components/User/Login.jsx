@@ -7,8 +7,8 @@ function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { login } = useAuth(); // Use login function from context
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -16,8 +16,10 @@ function Login() {
     const endpoint = 'users/login';
     try {
       const response = await addItem(endpoint, { username, password });
+      console.log(response);
+
       if (response.payload.id) {
-        login(response.payload); // Set user data in context
+        login(response.payload); // Use login function from AuthContext
         navigate(`/profile/${response.payload.id}`);
       } else {
         setError('Invalid username or password');
@@ -62,6 +64,7 @@ function Login() {
           Log In
         </button>
       </form>
+      <Link to="/register">Register</Link>
     </div>
   );
 }
