@@ -223,6 +223,7 @@ function BarberDetails() {
             )}
           </div>
 
+
           <div className="appointments-container">
             <h4>Appointments Deatils</h4>
             {!barberAppointments ? (
