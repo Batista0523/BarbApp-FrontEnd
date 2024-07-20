@@ -108,7 +108,7 @@ function BarberDetails() {
     const toCreateReviewEndpoint = "reviews";
     try {
       if (!currentUser) {
-        alert("must log in before post review");
+        alert("Please log in to your account firts");
       }
       const reviewData = {
         ...formData,
@@ -224,7 +224,7 @@ function BarberDetails() {
           </div>
 
           <div className="appointments-container">
-            <h4>Appointments</h4>
+            <h4>Appointments Deatils</h4>
             {!barberAppointments ? (
               <div>Loading appointments...</div>
             ) : (

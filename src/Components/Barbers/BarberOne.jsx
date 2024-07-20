@@ -45,6 +45,7 @@ const [customers , setCustomer] = useState([])
         ))}
       </ul>
       <h1>clients</h1>
+      {/* need to create clients details component */}
       <ul>
         {customers.map((customer) => (
           <li key={customer.id}>

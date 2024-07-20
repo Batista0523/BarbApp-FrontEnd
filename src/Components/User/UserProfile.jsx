@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchOneItem } from "../../helpers/apiCalls";
+import { fetchOneItem,addItem } from "../../helpers/apiCalls";
 import { useParams, useNavigate } from "react-router-dom";
 
 const UserProfile = ({ onLogOff }) => {
@@ -30,6 +30,11 @@ const UserProfile = ({ onLogOff }) => {
     getUserDetails();
   }, [id]);
 
+  const handleUserInfoPost = async(e) => {
+    e.preventDefault()
+   
+  }
+
   const handleLogOff = () => {
     setUser(null);
     onLogOff(); // Call log-off function from props to update NavBar
@@ -46,6 +51,7 @@ const UserProfile = ({ onLogOff }) => {
       <p>Username: {user.username}</p>
       <p>Email: {user.email}</p>
       <p>Role: {user.role}</p>
+      <p>phone: {user.phone_number}</p>
       <button onClick={handleLogOff} className="btn btn-danger">
         Log Off
       </button>
