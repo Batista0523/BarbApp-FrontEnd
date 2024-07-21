@@ -162,7 +162,7 @@ function BarberDetails() {
           <div className="details-container">
             <h1>{barber.name}'s Details</h1>
             <p>Role: {barber.role}</p>
-            <p>{barber.profile_info}</p>
+            <p>Information: {barber.profile_info}</p>
             <p>Phone Number: {barber.phone_number}</p>
             <p>Location: {barber.address}</p>
             <p>Email: {barber.email}</p>

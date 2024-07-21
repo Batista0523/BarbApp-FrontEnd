@@ -14,7 +14,7 @@ function NavBar({ user, onLogOff }) {
         </li>
         <li className="nav-item">
           <Link className="nav-link" to="/barbers">
-            Barbers
+            Users
           </Link>
         </li>
         <li className="nav-item">
