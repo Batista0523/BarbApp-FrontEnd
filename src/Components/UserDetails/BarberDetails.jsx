@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
+
+
+
+
 function BarberDetails() {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
@@ -245,18 +249,6 @@ function BarberDetails() {
                       } on the day ${formatDate(
                         appointment.appointment_date
                       )} at ${formatTime(appointment.appointment_time)}`}</p>
-              
-                      {/* <p>
-                        Customer:{" "}
-                        {customer ? customer.name : appointment.customer_id}
-                      </p>
-                      <p>Status: {appointment.status}</p>
-                      <p>
-                        Service chosen:{" "}
-                        {service
-                          ? `${service.service_name} - $${service.price}`
-                          : "Service not found"}
-                      </p> */}
                     </div>
                   </div>
                 );

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 function Barbers() {
   const [barbers, setBarbers] = useState([]);
-const [customers , setCustomer] = useState([])
+  const [customers, setCustomer] = useState([]);
   useEffect(() => {
     const endpoint = "users";
     fetchAllItems(endpoint)
@@ -12,20 +12,11 @@ const [customers , setCustomer] = useState([])
         const barberData = response.payload.filter(
           (user) => user.role === "barber"
         );
-        setBarbers(barberData);
-      })
-      .catch((error) => {
-        console.error("Error fetching barbers:", error);
-      });
-  }, []);
-  useEffect(() => {
-    const endpoint = "users";
-    fetchAllItems(endpoint)
-      .then((response) => {
         const customerData = response.payload.filter(
           (user) => user.role === "customer"
         );
         setCustomer(customerData);
+        setBarbers(barberData);
       })
       .catch((error) => {
         console.error("Error fetching barbers:", error);
@@ -49,7 +40,7 @@ const [customers , setCustomer] = useState([])
       <ul>
         {customers.map((customer) => (
           <li key={customer.id}>
-            <Link to={`/oneBarber/${customer.id}`}>
+            <Link to={`/oneCustomer/${customer.id}`}>
               <h2>{customer.name}</h2>
             </Link>
           </li>

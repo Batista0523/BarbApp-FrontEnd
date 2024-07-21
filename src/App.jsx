@@ -8,8 +8,8 @@ import { useAuth } from "./AuthContext";
 import Reviews from "./Pages/Reviews";
 import Barbers from "./Pages/Barbers";
 import UserProfile from "./Components/User/UserProfile";
-import BarberDetails from "./Components/Barbers/BarberDetails";
-
+import BarberDetails from "./Components/UserDetails/BarberDetails";
+import CustomerDetails from "./Components/UserDetails/CustomerDetails";
 function App() {
   const { user, logout } = useAuth();
 
@@ -23,6 +23,10 @@ function App() {
           <Route 
             path="/oneBarber/:id" 
             element={ <BarberDetails />} 
+          />
+          <Route 
+            path="/oneCustomer/:id" 
+            element={ <CustomerDetails />} 
           />
           <Route path="/reviews" element={<Reviews />} />
           <Route 

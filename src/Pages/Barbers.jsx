@@ -1,5 +1,5 @@
 import React from "react";
-import BarberOne from "../Components/Barbers/BarberOne"
+import BarberOne from "../Components/UserDetails/Users"
 
 function Barbers() {
 
