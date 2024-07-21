@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { fetchOneItem,addItem } from "../../helpers/apiCalls";
+import { fetchOneItem,addItem, fetchAllItems } from "../../helpers/apiCalls";
 import { useParams, useNavigate } from "react-router-dom";
 
 const UserProfile = ({ onLogOff }) => {
@@ -12,7 +12,7 @@ const UserProfile = ({ onLogOff }) => {
     const getUserDetails = async () => {
       try {
         if (id) {
-          const userDetails = await fetchOneItem(endpoint, id);
+          const userDetails = await fetchAllItems(endpoint, id);
       
           if (userDetails.success) {
             setUser(userDetails.payload);

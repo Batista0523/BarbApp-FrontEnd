@@ -126,10 +126,8 @@ function BarberDetails() {
       }
     } catch (error) {
       console.error("Error creating review", error);
-      setNotification(
-        error.response?.data?.message || "Log In first"
-      );
-      navigate('/login')
+      setNotification(error.response?.data?.message || "Log In first");
+      navigate("/login");
     }
   };
 
@@ -223,8 +221,6 @@ function BarberDetails() {
             )}
           </div>
 
-
-
           <div className="appointments-container">
             <h4>Appointments Deatils</h4>
             {!barberAppointments ? (
@@ -240,9 +236,17 @@ function BarberDetails() {
                 return (
                   <div key={index}>
                     <div>
-                      <p>Date: {formatDate(appointment.appointment_date)}</p>
-                      <p>Time: {formatTime(appointment.appointment_time)}</p>
-                      <p>
+                      <p>{`${customer.name} has scheduled an appointment with ${
+                        barber.name
+                      } for the services -${
+                        service.service_name
+                      } agree to pay the amount of $${
+                        service.price
+                      } on the day ${formatDate(
+                        appointment.appointment_date
+                      )} at ${formatTime(appointment.appointment_time)}`}</p>
+              
+                      {/* <p>
                         Customer:{" "}
                         {customer ? customer.name : appointment.customer_id}
                       </p>
@@ -252,7 +256,7 @@ function BarberDetails() {
                         {service
                           ? `${service.service_name} - $${service.price}`
                           : "Service not found"}
-                      </p>
+                      </p> */}
                     </div>
                   </div>
                 );
