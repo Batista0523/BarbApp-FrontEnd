@@ -36,7 +36,7 @@ function CustomerDetails() {
           <div>Loading details</div>
         ) : (
           <div>
-            <h3>{customer.name}</h3>
+           
             <h3>{customer.email}</h3>
             <h3>{customer.phone_number}</h3>
             <h3>{customer.address}</h3>
