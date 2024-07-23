@@ -16,7 +16,7 @@ function Login() {
     const endpoint = 'users/login';
     try {
       const response = await addItem(endpoint, { username, password });
-      console.log(response);
+      console.log(response,'here');
 
       if (response.payload.id) {
         login(response.payload); // Use login function from AuthContext

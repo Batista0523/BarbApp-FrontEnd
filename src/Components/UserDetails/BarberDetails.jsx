@@ -35,7 +35,6 @@ function BarberDetails() {
             console.error("Invalid response format:", userDetails);
             setBarber([]);
           }
-
           // Fetch services, appointments, reviews, and customers
           const [
             fetchedBarberServices,

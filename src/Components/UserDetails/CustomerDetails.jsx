@@ -16,7 +16,7 @@ function CustomerDetails() {
           if (fecthedCustomer.success) {
             fecthedCustomer = fecthedCustomer.payload;
             setCustomer(fecthedCustomer);
-            console.log(fecthedCustomer, "data of customer");
+           
           } else {
             console.error("Invalid response format: ", fecthedCustomer);
           }

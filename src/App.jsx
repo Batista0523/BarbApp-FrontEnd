@@ -1,13 +1,13 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes,Navigate } from "react-router-dom";
 import NavBar from "./Components/NAvBar/NavBar";
-import Register from "./Components/User/Register";
-import Login from "./Components/User/Login";
+import Register from "./Components/Profile/Register";
+import Login from "./Components/Profile/Login";
 import Home from "./Pages/Home";
 import { useAuth } from "./AuthContext";
 import Reviews from "./Pages/Reviews";
 import Barbers from "./Pages/Barbers";
-import UserProfile from "./Components/User/UserProfile";
+import UserProfile from "./Components/Profile/UserProfile";
 import BarberDetails from "./Components/UserDetails/BarberDetails";
 import CustomerDetails from "./Components/UserDetails/CustomerDetails";
 function App() {
