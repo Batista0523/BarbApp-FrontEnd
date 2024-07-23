@@ -8,7 +8,7 @@ const UserProfile = ({ onLogOff }) => {
   const [user, setUser] = useState(null);
   const { user: currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
-  const [initialize, setInitialize] = useState({service_name:"", price: 0 });
+  const [initialize, setInitialize] = useState({ service_name: "", price: 0 });
   const [formData, setFormData] = useState(initialize);
   useEffect(() => {
     const endpoint = "users";
@@ -60,12 +60,10 @@ const UserProfile = ({ onLogOff }) => {
       const servicesData = {
         ...formData,
         barber_id: currentUser.id,
-        customer_id:id
       };
 
       const response = await addItem(toPostServicesEndpoint, servicesData);
       if (response) {
-        console.log(response,'response here')
         console.log("Services added to to your profile");
         alert("service added niceee!!!");
 
@@ -122,17 +120,6 @@ const UserProfile = ({ onLogOff }) => {
             )}
             <form onSubmit={handleServicesPost}>
               <div>
-                <label htmlFor="service_name"> Service</label>
-                <input
-                  type="text"
-                  name="services"
-                  id="services"
-                  value={formData.service_name}
-                  onChange={handleInputChange}
-               
-                />
-              </div>
-              <div>
                 <label htmlFor="service_price"> price</label>
                 <input
                   type="number"
@@ -141,6 +128,16 @@ const UserProfile = ({ onLogOff }) => {
                   value={formData.price}
                   onChange={handleInputChange}
                   required
+                />
+              </div>
+              <div>
+                <label htmlFor="service_name"> Service</label>
+                <input
+                  type="text"
+                  name="service_name"
+                  id="service_name"
+                  value={formData.service_name}
+                  onChange={handleInputChange}
                 />
               </div>
               <button type="submit" className="btn btn-primary">
