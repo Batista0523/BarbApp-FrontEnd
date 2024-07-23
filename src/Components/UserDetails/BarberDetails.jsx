@@ -118,6 +118,7 @@ function BarberDetails() {
         barber_id: id,
         customer_id: currentUser.id,
       };
+     
       const response = await addItem(toCreateReviewEndpoint, reviewData);
       if (response) {
         console.log("Review Added", response);
