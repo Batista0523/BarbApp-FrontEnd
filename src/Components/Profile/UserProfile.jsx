@@ -8,11 +8,13 @@ const UserProfile = ({ onLogOff }) => {
   const [user, setUser] = useState(null);
   const { user: currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
+  const [services, setServices] = useState([]);
   const [initialize, setInitialize] = useState({ service_name: "", price: 0 });
   const [formData, setFormData] = useState(initialize);
   useEffect(() => {
     const endpoint = "users";
     const reviewEndpoint = "reviews";
+    const servicesEndpoint = "services";
     const getUserDetails = async () => {
       try {
         if (id) {
@@ -24,13 +26,24 @@ const UserProfile = ({ onLogOff }) => {
             console.error("Invalid response format:", userDetails);
             setUser(null);
           }
-          const fetchedReviews = await fetchAllItems(reviewEndpoint, id);
-          if (fetchedReviews.success) {
+          const [fetchedReviews, fetchedServices] = await Promise.all([
+
+            fetchAllItems(reviewEndpoint, id),
+            fetchAllItems(servicesEndpoint, id)
+          ]
+          );
+          if (fetchedReviews.success && fetchedServices.success) {
             let fetcheReviewById = fetchedReviews.payload;
+            let fetcheServicesById = fetchedServices.payload;
+
+            fetcheServicesById = fetcheServicesById.filter((serviceById) => {
+              return serviceById.barber_id === Number(id);
+            });
             fetcheReviewById = fetcheReviewById.filter((reviewById) => {
               return reviewById.barber_id === Number(id);
             });
             setReviews(fetcheReviewById);
+            setServices(fetcheServicesById);
           } else {
             console.error("Ivalid format", fetchedReviews);
             setReviews([]);
@@ -40,6 +53,7 @@ const UserProfile = ({ onLogOff }) => {
         console.error("Error fetching specific user", error);
         setUser(null);
         setReviews([]);
+        setServices([]);
       }
     };
 
@@ -117,6 +131,18 @@ const UserProfile = ({ onLogOff }) => {
                   <p>review --- {reviews.review_text}</p>
                 </div>
               ))
+            )}
+            
+            {!services ? (
+              <div>loading services</div>
+            ) : (
+             services.map((services,index) => (
+              <div key={index}>
+                <p>services : {services.service_name}</p>
+                <p>price : {services.price}</p>
+                <p></p>
+              </div>
+             ))
             )}
             <form onSubmit={handleServicesPost}>
               <div>
