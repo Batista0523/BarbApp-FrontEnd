@@ -31,15 +31,7 @@ const fetchOneItem = (endpoint, id)  => {
     .catch(handleError);
 };
 
-// const fetchItemsByBarberId = async ( barberId) => {
-//   try {
-//     const response = await axios.get(`${baseURL}/reviews/barber/${barberId}`);
-//     return response.data;
-//   } catch (error) {
-//     console.error("Error fetching items by barber ID", error);
-//     throw error;
-//   }
-// };
+
 
 const addItem = (endpoint, data) => {
   return axios
@@ -51,7 +43,6 @@ const addItem = (endpoint, data) => {
     .then(handleResponse)
     .catch(handleError);
 };
-
 const updateItem = (endpoint, id, data) => {
   return axios
     .put(`${baseURL}/${endpoint}/${id}`, data, {
@@ -62,6 +53,7 @@ const updateItem = (endpoint, id, data) => {
     .then(handleResponse)
     .catch(handleError);
 };
+
 
 const deleteItem = (endpoint, id) => {
   return axios

@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from "react";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
 import {
   fetchOneItem,
   addItem,
   fetchAllItems,
   deleteItem,
+  updateItem,
 } from "../../helpers/apiCalls";
-import { useParams, useNavigate } from "react-router-dom";
-import { confirmAlert } from "react-confirm-alert";
-import "react-confirm-alert/src/react-confirm-alert.css";
-import { useAuth } from "../../AuthContext";
+
 const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,6 +20,9 @@ const UserProfile = ({ onLogOff }) => {
   const [services, setServices] = useState([]);
   const [initialize, setInitialize] = useState({ service_name: "", price: 0 });
   const [formData, setFormData] = useState(initialize);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingService, setEditingService] = useState(null);
+
   useEffect(() => {
     const endpoint = "users";
     const reviewEndpoint = "reviews";
@@ -50,7 +55,7 @@ const UserProfile = ({ onLogOff }) => {
             setReviews(fetcheReviewById);
             setServices(fetcheServicesById);
           } else {
-            console.error("Ivalid format", fetchedReviews);
+            console.error("Invalid format", fetchedReviews);
             setReviews([]);
           }
         }
@@ -64,10 +69,10 @@ const UserProfile = ({ onLogOff }) => {
 
     getUserDetails();
   }, [id]);
-  //Hanlde deleting of service
-  const handleDeleteServices = (service) => {
 
-    const toDeleteEndpoint = "services"
+  // Handle deleting of service
+  const handleDeleteServices = (service) => {
+    const toDeleteEndpoint = "services";
     confirmAlert({
       title: "Confirm to delete",
       message: "Are You Sure You Want To Delete This Service My friend?",
@@ -91,7 +96,49 @@ const UserProfile = ({ onLogOff }) => {
     });
   };
 
-  //Handle input Change
+  // Handle update service
+  const handleEditClick = (service) => {
+    setIsEditing(true);
+    setEditingService(service);
+    setFormData({ service_name: service.service_name, price: service.price });
+  };
+
+  const handleUpdateServices = async (e) => {
+    e.preventDefault();
+    const toUpdateEndpoint = "services";
+    try {
+      const updatedFormData = {
+        ...formData,
+        barber_id: currentUser.id,
+      }
+      const updateServices = await updateItem(toUpdateEndpoint, editingService.id, updatedFormData);
+      if (updateServices?.payload?.id) {
+        alert("Update successful!!");
+        setIsEditing(false);
+        setEditingService(null);
+        setFormData(initialize);
+        setServices((prevServices) =>
+          prevServices.map((service) =>
+            service.id === updateServices.payload.id ? updateServices.payload : service
+          )
+        );
+      } else {
+        console.error("Unexpected response format", updateServices);
+        alert("Update failed. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error updating the services", error);
+    }
+  };
+  
+  
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditingService(null);
+    setFormData({ service_name: "", price: 0 });
+  };
+
+  // Handle input change
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
@@ -109,15 +156,15 @@ const UserProfile = ({ onLogOff }) => {
 
       const response = await addItem(toPostServicesEndpoint, servicesData);
       if (response) {
-        console.log("Services added to to your profile");
-        alert("service added niceee!!!");
-
+        console.log("Services added to your profile");
+        alert("Service added!");
         setFormData(initialize);
+        setServices((prevServices) => [...prevServices, response]);
       } else {
-        console.error("error adding service", response);
+        console.error("Error adding service", response);
       }
     } catch (err) {
-      console.error("error creating service", err);
+      console.error("Error creating service", err);
     }
   };
 
@@ -139,74 +186,114 @@ const UserProfile = ({ onLogOff }) => {
     <div>
       {user.role === "customer" ? (
         <div className="customer-container">
-          <h1>customer profile</h1>
-          <p>Name {user.name}</p>
+          <h1>Customer Profile</h1>
+          <p>Name: {user.name}</p>
           <p>Email: {user.email}</p>
           <p>Role: {user.role}</p>
-          <p>phone: {user.phone_number}</p>
+          <p>Phone: {user.phone_number}</p>
         </div>
       ) : user.role === "barber" ? (
-        <div className="barber contains">
-          <h1>Barber profile</h1>
-          <p>Name:{user.name}</p>
-          <p>Phone number {user.phone_number}</p>
-          <p>Email:{user.email}</p>
+        <div className="barber-container">
+          <h1>Barber Profile</h1>
+          <p>Name: {user.name}</p>
+          <p>Phone: {user.phone_number}</p>
+          <p>Email: {user.email}</p>
           <div className="review-container">
-            <h4> Your reviews</h4>
-            {!reviews ? (
-              <div>loading review...</div>
+            <h4>Your Reviews</h4>
+            {reviews.length === 0 ? (
+              <div>Loading reviews...</div>
             ) : (
-              reviews.map((reviews, index) => (
+              reviews.map((review, index) => (
                 <div key={index}>
-                  <p>review {renderStars(reviews.rating)}</p>
-                  <p>review --- {reviews.review_text}</p>
+                  <p>Rating: {renderStars(review.rating)}</p>
+                  <p>Review: {review.review_text}</p>
                 </div>
               ))
             )}
-
-            {!services ? (
-              <div>loading services</div>
+          </div>
+          <div className="service-container">
+            <h4>Your Services</h4>
+            {services.length === 0 ? (
+              <div>Loading services...</div>
             ) : (
-              services.map((services, index) => (
+              services.map((service, index) => (
                 <div key={index}>
-                  <p>services : {services.service_name}</p>
-                  <p>price : {services.price}</p>
-                <button onClick={() => handleDeleteServices(services)}>DELETE</button>
+                  <p>Service: {service.service_name}</p>
+                  <p>Price: {service.price}</p>
+                  <button onClick={() => handleDeleteServices(service)}>
+                    DELETE
+                  </button>
+                  <button onClick={() => handleEditClick(service)}>
+                    EDIT
+                  </button>
                 </div>
               ))
             )}
-            <form onSubmit={handleServicesPost}>
-              <div>
-                <label htmlFor="service_price"> price</label>
-                <input
-                  type="number"
-                  name="price"
-                  id="price"
-                  value={formData.price}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-              <div>
-                <label htmlFor="service_name"> Service</label>
-                <input
-                  type="text"
-                  name="service_name"
-                  id="service_name"
-                  value={formData.service_name}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Add services
-              </button>
-            </form>
+            {isEditing && (
+              <form onSubmit={handleUpdateServices}>
+                <div>
+                  <label htmlFor="service_name">Service</label>
+                  <input
+                    type="text"
+                    id="service_name"
+                    value={formData.service_name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="price">Price</label>
+                  <input
+                    type="number"
+                    id="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Update Service
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
+              </form>
+            )}
+            {!isEditing && (
+              <form onSubmit={handleServicesPost}>
+                <div>
+                  <label htmlFor="service_name">Service</label>
+                  <input
+                    type="text"
+                    id="service_name"
+                    value={formData.service_name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <div>
+                  <label htmlFor="price">Price</label>
+                  <input
+                    type="number"
+                    id="price"
+                    value={formData.price}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Add Service
+                </button>
+              </form>
+            )}
           </div>
         </div>
       ) : null}
-      <button onClick={handleLogOff} className="btn btn-danger">
-        Log Off
-      </button>
+      <button onClick={handleLogOff}>Log off</button>
     </div>
   );
 };
