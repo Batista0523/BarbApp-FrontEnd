@@ -1,6 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
+import {
+  fetchOneItem,
+  addItem,
+  fetchAllItems,
+  deleteItem,
+} from "../../helpers/apiCalls";
 import { useParams, useNavigate } from "react-router-dom";
+import { confirmAlert } from "react-confirm-alert";
+import "react-confirm-alert/src/react-confirm-alert.css";
 import { useAuth } from "../../AuthContext";
 const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
@@ -27,11 +34,9 @@ const UserProfile = ({ onLogOff }) => {
             setUser(null);
           }
           const [fetchedReviews, fetchedServices] = await Promise.all([
-
             fetchAllItems(reviewEndpoint, id),
-            fetchAllItems(servicesEndpoint, id)
-          ]
-          );
+            fetchAllItems(servicesEndpoint, id),
+          ]);
           if (fetchedReviews.success && fetchedServices.success) {
             let fetcheReviewById = fetchedReviews.payload;
             let fetcheServicesById = fetchedServices.payload;
@@ -59,6 +64,32 @@ const UserProfile = ({ onLogOff }) => {
 
     getUserDetails();
   }, [id]);
+  //Hanlde deleting of service
+  const handleDeleteServices = (service) => {
+
+    const toDeleteEndpoint = "services"
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are You Sure You Want To Delete This Service My friend?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: async () => {
+            try {
+              await deleteItem(toDeleteEndpoint, service.id);
+              setServices(services.filter((s) => s.id !== service.id));
+              console.log("Service deleted successfully");
+            } catch (err) {
+              console.error("Error deleting service", err);
+            }
+          },
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
+  };
 
   //Handle input Change
   const handleInputChange = (e) => {
@@ -132,17 +163,17 @@ const UserProfile = ({ onLogOff }) => {
                 </div>
               ))
             )}
-            
+
             {!services ? (
               <div>loading services</div>
             ) : (
-             services.map((services,index) => (
-              <div key={index}>
-                <p>services : {services.service_name}</p>
-                <p>price : {services.price}</p>
-                <p></p>
-              </div>
-             ))
+              services.map((services, index) => (
+                <div key={index}>
+                  <p>services : {services.service_name}</p>
+                  <p>price : {services.price}</p>
+                <button onClick={() => handleDeleteServices(services)}>DELETE</button>
+                </div>
+              ))
             )}
             <form onSubmit={handleServicesPost}>
               <div>
