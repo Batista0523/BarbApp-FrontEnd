@@ -10,7 +10,7 @@ import {
   deleteItem,
   updateItem,
 } from "../../helpers/apiCalls";
-
+import "./UserProfile.css"
 const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -110,16 +110,22 @@ const UserProfile = ({ onLogOff }) => {
       const updatedFormData = {
         ...formData,
         barber_id: currentUser.id,
-      }
-      const updateServices = await updateItem(toUpdateEndpoint, editingService.id, updatedFormData);
+      };
+      const updateServices = await updateItem(
+        toUpdateEndpoint,
+        editingService.id,
+        updatedFormData
+      );
       if (updateServices?.payload?.id) {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
         setFormData(initialize);
-        setServices((prevServices) =>
-          prevServices.map((service) =>
-            service.id === updateServices.payload.id ? updateServices.payload : service
+        setServices((prevSetServices) =>
+          prevSetServices.map((service) =>
+            service.id === updateServices.payload.id
+              ? updateServices.payload
+              : service
           )
         );
       } else {
@@ -130,8 +136,7 @@ const UserProfile = ({ onLogOff }) => {
       console.error("Error updating the services", error);
     }
   };
-  
-  
+
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditingService(null);
@@ -223,9 +228,7 @@ const UserProfile = ({ onLogOff }) => {
                   <button onClick={() => handleDeleteServices(service)}>
                     DELETE
                   </button>
-                  <button onClick={() => handleEditClick(service)}>
-                    EDIT
-                  </button>
+                  <button onClick={() => handleEditClick(service)}>EDIT</button>
                 </div>
               ))
             )}
@@ -285,6 +288,7 @@ const UserProfile = ({ onLogOff }) => {
                     required
                   />
                 </div>
+
                 <button type="submit" className="btn btn-primary">
                   Add Service
                 </button>
