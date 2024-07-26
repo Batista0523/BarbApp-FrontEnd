@@ -101,7 +101,12 @@ body {
   .service-container button:hover {
     background-color: #0056b3;
   }
-  
+  .logo-image{
+    width: 55rem;
+    align-items: center;
+    position: relative;
+    left: 6rem;
+  }
   /* Forms */
   form {
     background-color: #fff;
