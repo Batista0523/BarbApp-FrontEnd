@@ -78,7 +78,7 @@ function BarberDetails() {
             setBarberServices(Services);
             setBarberAppointments(Appointments);
             setCustomers(Customers);
-            setBarberSchedule(Schedules)
+            setBarberSchedule(Schedules);
           } else {
             console.error(
               "Invalid response format",
@@ -235,6 +235,18 @@ function BarberDetails() {
           </div>
           <div className="schedule-container">
             <h4>Schedules</h4>
+            {!barberSchedule ? (
+              <div>Loading schedules...</div>
+            ) : (
+              barberSchedule.map((schedule, index) => (
+                <div key={index}>
+                  <p>{schedule.day_of_week}</p>
+                  <p>{`From ${schedule.start_time} To ${formatTime(
+                    schedule.end_time
+                  )}`}</p>
+                </div>
+              ))
+            )}
           </div>
 
           <div className="appointments-container">
