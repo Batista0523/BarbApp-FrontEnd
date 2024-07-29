@@ -4,15 +4,13 @@ import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
 
-
-
-
 function BarberDetails() {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
   const [barberReview, setBarberReview] = useState([]);
   const [barberServices, setBarberServices] = useState([]);
   const [barberAppointments, setBarberAppointments] = useState([]);
+  const [barberSchedule, setBarberSchedule] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [notification, setNotification] = useState(null);
   const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
@@ -24,6 +22,7 @@ function BarberDetails() {
     const reviewEndpoint = "reviews";
     const servicesEndpoint = "services";
     const appointmentsEndpoint = "appointments";
+    const scheduleEndpoint = "schedules";
     const fetchAllData = async () => {
       try {
         if (id) {
@@ -35,30 +34,33 @@ function BarberDetails() {
             console.error("Invalid response format:", userDetails);
             setBarber([]);
           }
-          // Fetch services, appointments, reviews, and customers
+          // Fetch services, appointments, reviews, schedules ,and customers
           const [
             fetchedBarberServices,
             fetchedBarberAppointments,
             fetchedBarberReviews,
             fetchedCustomers,
+            fetchedSchedules,
           ] = await Promise.all([
             fetchAllItems(servicesEndpoint, id),
             fetchAllItems(appointmentsEndpoint, id),
             fetchAllItems(reviewEndpoint, id),
-            fetchAllItems(userEndpoint), // Fetch all users
+            fetchAllItems(userEndpoint),
+            fetchAllItems(scheduleEndpoint, id),
           ]);
 
           if (
             fetchedBarberServices.success &&
             fetchedBarberAppointments.success &&
             fetchedBarberReviews.success &&
-            fetchedCustomers.success
+            fetchedCustomers.success &&
+            fetchedSchedules.success
           ) {
             let Services = fetchedBarberServices.payload;
             let Appointments = fetchedBarberAppointments.payload;
             let Reviews = fetchedBarberReviews.payload;
             let Customers = fetchedCustomers.payload;
-
+            let Schedules = fetchedSchedules.payload;
             Services = Services.filter(
               (service) => service.barber_id === Number(id)
             );
@@ -68,23 +70,29 @@ function BarberDetails() {
             Reviews = Reviews.filter(
               (review) => review.barber_id === Number(id)
             );
+            Schedules = Schedules.filter(
+              (schedule) => schedule.barber_id === Number(id)
+            );
 
             setBarberReview(Reviews);
             setBarberServices(Services);
             setBarberAppointments(Appointments);
             setCustomers(Customers);
+            setBarberSchedule(Schedules)
           } else {
             console.error(
               "Invalid response format",
               fetchedBarberServices,
               fetchedBarberAppointments,
               fetchedBarberReviews,
-              fetchedCustomers
+              fetchedCustomers,
+              fetchedSchedules
             );
             setBarberReview([]);
             setBarberServices([]);
             setBarberAppointments([]);
             setCustomers([]);
+            setBarberSchedule([]);
           }
         }
       } catch (error) {
@@ -94,6 +102,7 @@ function BarberDetails() {
         setBarberServices([]);
         setBarberAppointments([]);
         setCustomers([]);
+        setBarberSchedule([]);
       }
     };
     fetchAllData();
@@ -118,7 +127,7 @@ function BarberDetails() {
         barber_id: id,
         customer_id: currentUser.id,
       };
-     
+
       const response = await addItem(toCreateReviewEndpoint, reviewData);
       if (response) {
         console.log("Review Added", response);
@@ -223,6 +232,9 @@ function BarberDetails() {
                 </div>
               ))
             )}
+          </div>
+          <div className="schedule-container">
+            <h4>Schedules</h4>
           </div>
 
           <div className="appointments-container">
