@@ -10,6 +10,7 @@ import Barbers from "./Pages/Barbers";
 import UserProfile from "./Components/Profile/UserProfile";
 import BarberDetails from "./Components/UserDetails/BarberDetails";
 import CustomerDetails from "./Components/UserDetails/CustomerDetails";
+import CreateAppointments from "./Pages/CreateAppointments";
 function App() {
   const { user, logout } = useAuth();
 
@@ -33,6 +34,7 @@ function App() {
             path="/profile/:id" 
             element={user ? <UserProfile onLogOff={logout} /> : <Navigate to="/login" />} 
           />
+          <Route path="/createAppointment/:id" element={<CreateAppointments/>}/>
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />
           <Route path="/register" element={!user ? <Register /> : <Navigate to="/" />} />
         </Routes>

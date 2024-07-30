@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -278,6 +278,14 @@ function BarberDetails() {
               })
             )}
           </div>
+          {!currentUser ? (
+            <Link to="/login" ><p>log in to create an appointment</p></Link>
+          ): (
+
+          <Link to={`/createAppointment/${barber.id}`}>
+            <h2>{`Create appointment with ${barber.name}`}</h2>
+          </Link>
+          )}
         </div>
       )}
     </div>
