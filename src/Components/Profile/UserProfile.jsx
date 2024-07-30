@@ -37,7 +37,7 @@ const UserProfile = ({ onLogOff }) => {
     const endpoint = "users";
     const reviewEndpoint = "reviews";
     const servicesEndpoint = "services";
-
+    const scheduleEndpoint = "schedules";
     const getUserDetails = async () => {
       try {
         if (id) {
@@ -49,25 +49,43 @@ const UserProfile = ({ onLogOff }) => {
             console.error("Invalid response format:", userDetails);
             setUser(null);
           }
-          const [fetchedReviews, fetchedServices] = await Promise.all([
-            fetchAllItems(reviewEndpoint, id),
-            fetchAllItems(servicesEndpoint, id),
-          ]);
-          if (fetchedReviews.success && fetchedServices.success) {
+          const [fetchedReviews, fetchedServices, fetchedSchedule] =
+            await Promise.all([
+              fetchAllItems(reviewEndpoint, id),
+              fetchAllItems(servicesEndpoint, id),
+              fetchAllItems(scheduleEndpoint, id),
+            ]);
+          if (
+            fetchedReviews.success &&
+            fetchedServices.success &&
+            fetchedSchedule.success
+          ) {
             let fetcheReviewById = fetchedReviews.payload;
             let fetcheServicesById = fetchedServices.payload;
+            let fetchedScheduleById = fetchedSchedule.payload;
 
-            fetcheServicesById = fetcheServicesById.filter((serviceById) => {
-              return serviceById.barber_id === Number(id);
-            });
             fetcheReviewById = fetcheReviewById.filter((reviewById) => {
               return reviewById.barber_id === Number(id);
             });
+            fetcheServicesById = fetcheServicesById.filter((serviceById) => {
+              return serviceById.barber_id === Number(id);
+            });
+            fetchedScheduleById = fetchedScheduleById.filter((scheduleById) => {
+              return scheduleById.barber_id === Number(id);
+            });
             setReviews(fetcheReviewById);
             setServices(fetcheServicesById);
+            setSchedule(fetchedScheduleById);
           } else {
-            console.error("Invalid format", fetchedReviews);
+            console.error(
+              "Invalid format",
+              fetchedReviews,
+              fetchedServices,
+              fetchedSchedule
+            );
             setReviews([]);
+            setServices([]);
+            setSchedule([]);
           }
         }
       } catch (error) {
@@ -75,6 +93,7 @@ const UserProfile = ({ onLogOff }) => {
         setUser(null);
         setReviews([]);
         setServices([]);
+        setSchedule([]);
       }
     };
 
@@ -330,42 +349,55 @@ const UserProfile = ({ onLogOff }) => {
                 </button>
               </form>
             )}
-            <form onSubmit={handleSchedulesPost}>
-              <h4>Schedules</h4>
-              <div>
-                <label htmlFor="day_of_week">Day of the Week:</label>
-                <input
-                  type="text"
-                  id="day_of_week"
-                  value={formScheduleData.day_of_week}
-                  onChange={handleInputScheduleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="start_time">start </label>
-                <input
-                  type="time"
-                  id="start_time"
-                  value={formScheduleData.start_time}
-                  onChange={handleInputScheduleChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="end_time">End </label>
-                <input
-                  type="time"
-                  id="end_time"
-                  value={formScheduleData.end_time}
-                  onChange={handleInputScheduleChange}
-                />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                Add Schedule
-              </button>
-            </form>
           </div>
         </div>
       ) : null}
+      <div className="shcedule container">
+        {schedule.lenght === 0 ? (
+          <div>You do not have schedule please add your schedule</div>
+        ): (
+          schedule.map((schedules, index) => (
+            <div key={index}>
+              <p>Day :{schedules.day_of_week}</p>
+              <p>Start time :{schedules.start_time}</p>
+              <p>End time :{schedules.end_time}</p>
+            </div>
+          ))
+        )}
+        <form onSubmit={handleSchedulesPost}>
+          <h4>Schedules</h4>
+          <div>
+            <label htmlFor="day_of_week">Day of the Week:</label>
+            <input
+              type="text"
+              id="day_of_week"
+              value={formScheduleData.day_of_week}
+              onChange={handleInputScheduleChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="start_time">start </label>
+            <input
+              type="time"
+              id="start_time"
+              value={formScheduleData.start_time}
+              onChange={handleInputScheduleChange}
+            />
+          </div>
+          <div>
+            <label htmlFor="end_time">End </label>
+            <input
+              type="time"
+              id="end_time"
+              value={formScheduleData.end_time}
+              onChange={handleInputScheduleChange}
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            Add Schedule
+          </button>
+        </form>
+      </div>
       <button onClick={onLogOff}>Log off</button>
     </div>
   );
