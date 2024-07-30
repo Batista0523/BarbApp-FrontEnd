@@ -158,7 +158,7 @@ const UserProfile = ({ onLogOff }) => {
   };
 
   // Handle input change
-  const handleInputChange = (e) => {
+  const handleInputServicesChange = (e) => {
     const { id, value } = e.target;
     setFormServicesData({ ...formServicesData, [id]: value });
   };
@@ -194,11 +194,12 @@ const UserProfile = ({ onLogOff }) => {
     try {
       const schedulesData = {
         ...formScheduleData,
-        barber_id: currentUser,
+        barber_id: currentUser.id,
       };
       const response = await addItem(toPostSchedulesEndpoint, schedulesData);
       if (response) {
         console.log("Schedule added to your profile");
+        alert("Schedule added!");
         setFormScheduleData(initSchedule);
         setSchedule((prevSchedule) => [...prevSchedule, response]);
       } else {
@@ -207,6 +208,10 @@ const UserProfile = ({ onLogOff }) => {
     } catch (err) {
       console.error("error creating schedule", err);
     }
+  };
+  const handleInputScheduleChange = (e) => {
+    const { id, value } = e.target;
+    setFormScheduleData({ ...formScheduleData, [id]: value });
   };
 
   // Handle stars render
@@ -271,7 +276,7 @@ const UserProfile = ({ onLogOff }) => {
                     type="text"
                     id="service_name"
                     value={formServicesData.service_name}
-                    onChange={handleInputChange}
+                    onChange={handleInputServicesChange}
                     required
                   />
                 </div>
@@ -281,7 +286,7 @@ const UserProfile = ({ onLogOff }) => {
                     type="number"
                     id="price"
                     value={formServicesData.price}
-                    onChange={handleInputChange}
+                    onChange={handleInputServicesChange}
                     required
                   />
                 </div>
@@ -305,7 +310,7 @@ const UserProfile = ({ onLogOff }) => {
                     type="text"
                     id="service_name"
                     value={formServicesData.service_name}
-                    onChange={handleInputChange}
+                    onChange={handleInputServicesChange}
                     required
                   />
                 </div>
@@ -315,7 +320,7 @@ const UserProfile = ({ onLogOff }) => {
                     type="number"
                     id="price"
                     value={formServicesData.price}
-                    onChange={handleInputChange}
+                    onChange={handleInputServicesChange}
                     required
                   />
                 </div>
@@ -325,6 +330,39 @@ const UserProfile = ({ onLogOff }) => {
                 </button>
               </form>
             )}
+            <form onSubmit={handleSchedulesPost}>
+              <h4>Schedules</h4>
+              <div>
+                <label htmlFor="day_of_week">Day of the Week:</label>
+                <input
+                  type="text"
+                  id="day_of_week"
+                  value={formScheduleData.day_of_week}
+                  onChange={handleInputScheduleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="start_time">start </label>
+                <input
+                  type="time"
+                  id="start_time"
+                  value={formScheduleData.start_time}
+                  onChange={handleInputScheduleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="end_time">End </label>
+                <input
+                  type="time"
+                  id="end_time"
+                  value={formScheduleData.end_time}
+                  onChange={handleInputScheduleChange}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                Add Schedule
+              </button>
+            </form>
           </div>
         </div>
       ) : null}
