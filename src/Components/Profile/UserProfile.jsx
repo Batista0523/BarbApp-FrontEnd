@@ -11,78 +11,51 @@ import {
   updateItem,
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
+
 const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
   const { user: currentUser } = useAuth();
+
+  const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
-  const [initService, setInitServices] = useState({
+  const [schedule, setSchedule] = useState([]);
+  const [formServicesData, setFormServicesData] = useState({
     service_name: "",
     price: 0,
   });
-  const [formServicesData, setFormServicesData] = useState(initService);
-  const [schedule, setSchedule] = useState([]);
-  const [initSchedule, setInitSchedule] = useState({
+  const [formScheduleData, setFormScheduleData] = useState({
     day_of_week: "",
     start_time: "",
     end_time: "",
   });
-  const [formScheduleData, setFormScheduleData] = useState(initSchedule);
   const [isEditing, setIsEditing] = useState(false);
   const [editingService, setEditingService] = useState(null);
 
   useEffect(() => {
-    const endpoint = "users";
-    const reviewEndpoint = "reviews";
-    const servicesEndpoint = "services";
-    const scheduleEndpoint = "schedules";
     const getUserDetails = async () => {
       try {
         if (id) {
-          const userDetails = await fetchOneItem(endpoint, id);
-
+          const userDetails = await fetchOneItem("users", id);
           if (userDetails.success) {
             setUser(userDetails.payload);
           } else {
             console.error("Invalid response format:", userDetails);
             setUser(null);
           }
-          const [fetchedReviews, fetchedServices, fetchedSchedule] =
-            await Promise.all([
-              fetchAllItems(reviewEndpoint, id),
-              fetchAllItems(servicesEndpoint, id),
-              fetchAllItems(scheduleEndpoint, id),
-            ]);
-          if (
-            fetchedReviews.success &&
-            fetchedServices.success &&
-            fetchedSchedule.success
-          ) {
-            let fetcheReviewById = fetchedReviews.payload;
-            let fetcheServicesById = fetchedServices.payload;
-            let fetchedScheduleById = fetchedSchedule.payload;
+          const [fetchedReviews, fetchedServices, fetchedSchedule] = await Promise.all([
+            fetchAllItems("reviews", id),
+            fetchAllItems("services", id),
+            fetchAllItems("schedules", id),
+          ]);
 
-            fetcheReviewById = fetcheReviewById.filter((reviewById) => {
-              return reviewById.barber_id === Number(id);
-            });
-            fetcheServicesById = fetcheServicesById.filter((serviceById) => {
-              return serviceById.barber_id === Number(id);
-            });
-            fetchedScheduleById = fetchedScheduleById.filter((scheduleById) => {
-              return scheduleById.barber_id === Number(id);
-            });
-            setReviews(fetcheReviewById);
-            setServices(fetcheServicesById);
-            setSchedule(fetchedScheduleById);
+          if (fetchedReviews.success && fetchedServices.success && fetchedSchedule.success) {
+            setReviews(fetchedReviews.payload.filter(review => review.barber_id === Number(id)));
+            setServices(fetchedServices.payload.filter(service => service.barber_id === Number(id)));
+            setSchedule(fetchedSchedule.payload.filter(schedule => schedule.barber_id === Number(id)));
           } else {
-            console.error(
-              "Invalid format",
-              fetchedReviews,
-              fetchedServices,
-              fetchedSchedule
-            );
+            console.error("Invalid format", fetchedReviews, fetchedServices, fetchedSchedule);
             setReviews([]);
             setServices([]);
             setSchedule([]);
@@ -96,37 +69,30 @@ const UserProfile = ({ onLogOff }) => {
         setSchedule([]);
       }
     };
-
     getUserDetails();
   }, [id]);
 
-  // Handle deleting of service
   const handleDeleteServices = (service) => {
-    const toDeleteEndpoint = "services";
     confirmAlert({
       title: "Confirm to delete",
-      message: "Are You Sure You Want To Delete This Service My friend?",
+      message: "Are You Sure You Want To Delete This Service?",
       buttons: [
         {
           label: "Yes",
           onClick: async () => {
             try {
-              await deleteItem(toDeleteEndpoint, service.id);
-              setServices(services.filter((s) => s.id !== service.id));
-              console.log("Service deleted successfully");
+              await deleteItem("services", service.id);
+              setServices(services.filter(s => s.id !== service.id));
             } catch (err) {
               console.error("Error deleting service", err);
             }
           },
         },
-        {
-          label: "No",
-        },
+        { label: "No" },
       ],
     });
   };
 
-  // Handle edit click
   const handleEditClick = (service) => {
     setIsEditing(true);
     setEditingService(service);
@@ -135,69 +101,47 @@ const UserProfile = ({ onLogOff }) => {
       price: service.price,
     });
   };
-  // Handle update service
+
   const handleUpdateServices = async (e) => {
     e.preventDefault();
-    const toUpdateEndpoint = "services";
     try {
-      const updatedFormData = {
-        ...formServicesData,
-        barber_id: currentUser.id,
-      };
-      const updateServices = await updateItem(
-        toUpdateEndpoint,
-        editingService.id,
-        updatedFormData
-      );
-      if (updateServices?.payload?.id) {
+      const updatedFormData = { ...formServicesData, barber_id: currentUser.id };
+      const updateResponse = await updateItem("services", editingService.id, updatedFormData);
+      if (updateResponse?.payload?.id) {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
-        setFormServicesData(initService);
-        setServices((prevSetServices) =>
-          prevSetServices.map((service) =>
-            service.id === updateServices.payload.id
-              ? updateServices.payload
-              : service
-          )
-        );
+        setFormServicesData({ service_name: "", price: 0 });
+        setServices(services.map(service => (service.id === updateResponse.payload.id ? updateResponse.payload : service)));
       } else {
-        console.error("Unexpected response format", updateServices);
+        console.error("Unexpected response format", updateResponse);
         alert("Update failed. Please try again.");
       }
     } catch (error) {
       console.error("Error updating the services", error);
     }
   };
-  // Handle cancel click
+
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditingService(null);
     setFormServicesData({ service_name: "", price: 0 });
   };
 
-  // Handle input change
   const handleInputServicesChange = (e) => {
     const { id, value } = e.target;
-    setFormServicesData({ ...formServicesData, [id]: value });
+    setFormServicesData(prevData => ({ ...prevData, [id]: value }));
   };
-  // Handle create services
+
   const handleServicesPost = async (e) => {
     e.preventDefault();
-
-    const toPostServicesEndpoint = "services";
     try {
-      const servicesData = {
-        ...formServicesData,
-        barber_id: currentUser.id,
-      };
-
-      const response = await addItem(toPostServicesEndpoint, servicesData);
+      const servicesData = { ...formServicesData, barber_id: currentUser.id };
+      const response = await addItem("services", servicesData);
       if (response) {
-        console.log("Services added to your profile");
         alert("Service added!");
-        setFormServicesData(initService);
-        setServices((prevServices) => [...prevServices, response]);
+        setFormServicesData({ service_name: "", price: 0 });
+        setServices(prevServices => [...prevServices, response]);
       } else {
         console.error("Error adding service", response);
       }
@@ -208,39 +152,29 @@ const UserProfile = ({ onLogOff }) => {
 
   const handleSchedulesPost = async (e) => {
     e.preventDefault();
-
-    const toPostSchedulesEndpoint = "schedules";
     try {
-      const schedulesData = {
-        ...formScheduleData,
-        barber_id: currentUser.id,
-      };
-      const response = await addItem(toPostSchedulesEndpoint, schedulesData);
+      const schedulesData = { ...formScheduleData, barber_id: currentUser.id };
+      const response = await addItem("schedules", schedulesData);
       if (response) {
-        console.log("Schedule added to your profile");
         alert("Schedule added!");
-        setFormScheduleData(initSchedule);
-        setSchedule((prevSchedule) => [...prevSchedule, response]);
+        setFormScheduleData({ day_of_week: "", start_time: "", end_time: "" });
+        setSchedule(prevSchedule => [...prevSchedule, response]);
       } else {
         console.error("Error adding schedule");
       }
     } catch (err) {
-      console.error("error creating schedule", err);
+      console.error("Error creating schedule", err);
     }
   };
+
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
-    setFormScheduleData({ ...formScheduleData, [id]: value });
+    setFormScheduleData(prevData => ({ ...prevData, [id]: value }));
   };
 
-  // Handle stars render
-  const renderStars = (rating) => {
-    return "⭐".repeat(rating);
-  };
+  const renderStars = (rating) => "⭐".repeat(rating);
 
-  if (!user) {
-    return <div>Loading...</div>;
-  }
+  if (!user) return <div>Loading...</div>;
 
   return (
     <div>
@@ -261,7 +195,7 @@ const UserProfile = ({ onLogOff }) => {
           <div className="review-container">
             <h4>Your Reviews</h4>
             {reviews.length === 0 ? (
-              <div>You have no Reviews yet</div>
+              <div>You have no reviews yet</div>
             ) : (
               reviews.map((review, index) => (
                 <div key={index}>
@@ -274,20 +208,18 @@ const UserProfile = ({ onLogOff }) => {
           <div className="service-container">
             <h4>Your Services</h4>
             {services.length === 0 ? (
-              <div>You have no services please add services</div>
+              <div>You have no services, please add services</div>
             ) : (
               services.map((service, index) => (
                 <div key={index}>
                   <p>Service: {service.service_name}</p>
                   <p>Price: {service.price}</p>
-                  <button onClick={() => handleDeleteServices(service)}>
-                    DELETE
-                  </button>
+                  <button onClick={() => handleDeleteServices(service)}>DELETE</button>
                   <button onClick={() => handleEditClick(service)}>EDIT</button>
                 </div>
               ))
             )}
-            {isEditing && (
+            {isEditing ? (
               <form onSubmit={handleUpdateServices}>
                 <div>
                   <label htmlFor="service_name">Service</label>
@@ -309,19 +241,10 @@ const UserProfile = ({ onLogOff }) => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">
-                  Update Service
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={handleCancelEdit}
-                >
-                  Cancel
-                </button>
+                <button type="submit" className="btn btn-primary">Update Service</button>
+                <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
               </form>
-            )}
-            {!isEditing && (
+            ) : (
               <form onSubmit={handleServicesPost}>
                 <div>
                   <label htmlFor="service_name">Service</label>
@@ -343,62 +266,60 @@ const UserProfile = ({ onLogOff }) => {
                     required
                   />
                 </div>
-
-                <button type="submit" className="btn btn-primary">
-                  Add Service
-                </button>
+                <button type="submit" className="btn btn-primary">Add Service</button>
               </form>
             )}
           </div>
+          <div className="schedule-container">
+            <h4>Your Schedule</h4>
+            {schedule.length === 0 ? (
+              <div>You have no schedules yet</div>
+            ) : (
+              schedule.map((scheduleItem, index) => (
+                <div key={index}>
+                  <p>Day: {scheduleItem.day_of_week}</p>
+                  <p>Start: {scheduleItem.start_time}</p>
+                  <p>End: {scheduleItem.end_time}</p>
+                </div>
+              ))
+            )}
+            <form onSubmit={handleSchedulesPost}>
+              <div>
+                <label htmlFor="day_of_week">Day of the Week</label>
+                <input
+                  type="text"
+                  id="day_of_week"
+                  value={formScheduleData.day_of_week}
+                  onChange={handleInputScheduleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="start_time">Start Time</label>
+                <input
+                  type="time"
+                  id="start_time"
+                  value={formScheduleData.start_time}
+                  onChange={handleInputScheduleChange}
+                  required
+                />
+              </div>
+              <div>
+                <label htmlFor="end_time">End Time</label>
+                <input
+                  type="time"
+                  id="end_time"
+                  value={formScheduleData.end_time}
+                  onChange={handleInputScheduleChange}
+                  required
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">Add Schedule</button>
+            </form>
+          </div>
         </div>
       ) : null}
-      <div className="shcedule container">
-        {schedule.lenght === 0 ? (
-          <div>You do not have schedule please add your schedule</div>
-        ): (
-          schedule.map((schedules, index) => (
-            <div key={index}>
-              <p>Day :{schedules.day_of_week}</p>
-              <p>Start time :{schedules.start_time}</p>
-              <p>End time :{schedules.end_time}</p>
-            </div>
-          ))
-        )}
-        <form onSubmit={handleSchedulesPost}>
-          <h4>Schedules</h4>
-          <div>
-            <label htmlFor="day_of_week">Day of the Week:</label>
-            <input
-              type="text"
-              id="day_of_week"
-              value={formScheduleData.day_of_week}
-              onChange={handleInputScheduleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="start_time">start </label>
-            <input
-              type="time"
-              id="start_time"
-              value={formScheduleData.start_time}
-              onChange={handleInputScheduleChange}
-            />
-          </div>
-          <div>
-            <label htmlFor="end_time">End </label>
-            <input
-              type="time"
-              id="end_time"
-              value={formScheduleData.end_time}
-              onChange={handleInputScheduleChange}
-            />
-          </div>
-          <button type="submit" className="btn btn-primary">
-            Add Schedule
-          </button>
-        </form>
-      </div>
-      <button onClick={onLogOff}>Log off</button>
+      <button className="btn btn-primary" onClick={onLogOff}>log off</button>
     </div>
   );
 };

@@ -56,29 +56,28 @@ function BarberDetails() {
             fetchedCustomers.success &&
             fetchedSchedules.success
           ) {
-            let Services = fetchedBarberServices.payload;
-            let Appointments = fetchedBarberAppointments.payload;
-            let Reviews = fetchedBarberReviews.payload;
-            let Customers = fetchedCustomers.payload;
-            let Schedules = fetchedSchedules.payload;
-            Services = Services.filter(
-              (service) => service.barber_id === Number(id)
+            setCustomers(fetchedCustomers.payload);
+            // use Filter method to filter the barber_id and convert the id from string to number
+            setBarberReview(
+              fetchedBarberReviews.payload.filter(
+                (Review) => Review.barber_id === Number(id)
+              )
             );
-            Appointments = Appointments.filter(
-              (appointment) => appointment.barber_id === Number(id)
+            setBarberServices(
+              fetchedBarberServices.payload.filter(
+                (Services) => Services.barber_id === Number(id)
+              )
             );
-            Reviews = Reviews.filter(
-              (review) => review.barber_id === Number(id)
+            setBarberAppointments(
+              fetchedBarberAppointments.payload.filter(
+                (Appointments) => Appointments.barber_id === Number(id)
+              )
             );
-            Schedules = Schedules.filter(
-              (schedule) => schedule.barber_id === Number(id)
+            setBarberSchedule(
+              fetchedSchedules.payload.filter(
+                (Schedules) => Schedules.barber_id === Number(id)
+              )
             );
-
-            setBarberReview(Reviews);
-            setBarberServices(Services);
-            setBarberAppointments(Appointments);
-            setCustomers(Customers);
-            setBarberSchedule(Schedules);
           } else {
             console.error(
               "Invalid response format",
