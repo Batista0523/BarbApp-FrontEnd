@@ -29,11 +29,7 @@ function NavBar({ user, onLogOff }) {
                 Welcome {user.username}
               </Link>
             </li>
-            <li className="nav-item">
-              <button className="nav-link btn" onClick={onLogOff}>
-                Log Out
-              </button>
-            </li>
+          
           </>
         ) : (
           <>

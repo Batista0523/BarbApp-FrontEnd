@@ -10,7 +10,7 @@ import {
   deleteItem,
   updateItem,
 } from "../../helpers/apiCalls";
-import "./UserProfile.css"
+import "./UserProfile.css";
 const UserProfile = ({ onLogOff }) => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -96,13 +96,13 @@ const UserProfile = ({ onLogOff }) => {
     });
   };
 
-  // Handle update service
+  // Handle edit click
   const handleEditClick = (service) => {
     setIsEditing(true);
     setEditingService(service);
     setFormData({ service_name: service.service_name, price: service.price });
   };
-
+  // Handle update service
   const handleUpdateServices = async (e) => {
     e.preventDefault();
     const toUpdateEndpoint = "services";
@@ -136,7 +136,7 @@ const UserProfile = ({ onLogOff }) => {
       console.error("Error updating the services", error);
     }
   };
-
+  // Handle cancel click
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditingService(null);
@@ -148,7 +148,7 @@ const UserProfile = ({ onLogOff }) => {
     const { id, value } = e.target;
     setFormData({ ...formData, [id]: value });
   };
-
+ // Handle create services
   const handleServicesPost = async (e) => {
     e.preventDefault();
 
@@ -177,11 +177,7 @@ const UserProfile = ({ onLogOff }) => {
     return "⭐".repeat(rating);
   };
 
-  const handleLogOff = () => {
-    setUser(null);
-    onLogOff(); // Call log-off function from props to update NavBar
-    navigate("/"); // Send user home
-  };
+
 
   if (!user) {
     return <div>Loading...</div>;
@@ -206,7 +202,7 @@ const UserProfile = ({ onLogOff }) => {
           <div className="review-container">
             <h4>Your Reviews</h4>
             {reviews.length === 0 ? (
-              <div>Loading reviews...</div>
+              <div>You have no Reviews yet</div>
             ) : (
               reviews.map((review, index) => (
                 <div key={index}>
@@ -219,7 +215,7 @@ const UserProfile = ({ onLogOff }) => {
           <div className="service-container">
             <h4>Your Services</h4>
             {services.length === 0 ? (
-              <div>Loading services...</div>
+              <div>You have no services please add services</div>
             ) : (
               services.map((service, index) => (
                 <div key={index}>
@@ -297,11 +293,9 @@ const UserProfile = ({ onLogOff }) => {
           </div>
         </div>
       ) : null}
-      <button onClick={handleLogOff}>Log off</button>
+      <button onClick={ onLogOff}>Log off</button>
     </div>
   );
 };
 
 export default UserProfile;
-
-
