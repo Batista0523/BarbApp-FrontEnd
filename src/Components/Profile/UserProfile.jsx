@@ -18,8 +18,18 @@ const UserProfile = ({ onLogOff }) => {
   const { user: currentUser } = useAuth();
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
-  const [initialize, setInitialize] = useState({ service_name: "", price: 0 });
-  const [formData, setFormData] = useState(initialize);
+  const [initService, setInitServices] = useState({
+    service_name: "",
+    price: 0,
+  });
+  const [formServicesData, setFormServicesData] = useState(initService);
+  const [schedule, setSchedule] = useState([]);
+  const [initSchedule, setInitSchedule] = useState({
+    day_of_week: "",
+    start_time: "",
+    end_time: "",
+  });
+  const [formScheduleData, setFormScheduleData] = useState(initSchedule);
   const [isEditing, setIsEditing] = useState(false);
   const [editingService, setEditingService] = useState(null);
 
@@ -27,6 +37,7 @@ const UserProfile = ({ onLogOff }) => {
     const endpoint = "users";
     const reviewEndpoint = "reviews";
     const servicesEndpoint = "services";
+
     const getUserDetails = async () => {
       try {
         if (id) {
@@ -100,7 +111,10 @@ const UserProfile = ({ onLogOff }) => {
   const handleEditClick = (service) => {
     setIsEditing(true);
     setEditingService(service);
-    setFormData({ service_name: service.service_name, price: service.price });
+    setFormServicesData({
+      service_name: service.service_name,
+      price: service.price,
+    });
   };
   // Handle update service
   const handleUpdateServices = async (e) => {
@@ -108,7 +122,7 @@ const UserProfile = ({ onLogOff }) => {
     const toUpdateEndpoint = "services";
     try {
       const updatedFormData = {
-        ...formData,
+        ...formServicesData,
         barber_id: currentUser.id,
       };
       const updateServices = await updateItem(
@@ -120,7 +134,7 @@ const UserProfile = ({ onLogOff }) => {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
-        setFormData(initialize);
+        setFormServicesData(initService);
         setServices((prevSetServices) =>
           prevSetServices.map((service) =>
             service.id === updateServices.payload.id
@@ -140,22 +154,22 @@ const UserProfile = ({ onLogOff }) => {
   const handleCancelEdit = () => {
     setIsEditing(false);
     setEditingService(null);
-    setFormData({ service_name: "", price: 0 });
+    setFormServicesData({ service_name: "", price: 0 });
   };
 
   // Handle input change
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    setFormData({ ...formData, [id]: value });
+    setFormServicesData({ ...formServicesData, [id]: value });
   };
- // Handle create services
+  // Handle create services
   const handleServicesPost = async (e) => {
     e.preventDefault();
 
     const toPostServicesEndpoint = "services";
     try {
       const servicesData = {
-        ...formData,
+        ...formServicesData,
         barber_id: currentUser.id,
       };
 
@@ -163,7 +177,7 @@ const UserProfile = ({ onLogOff }) => {
       if (response) {
         console.log("Services added to your profile");
         alert("Service added!");
-        setFormData(initialize);
+        setFormServicesData(initService);
         setServices((prevServices) => [...prevServices, response]);
       } else {
         console.error("Error adding service", response);
@@ -173,11 +187,32 @@ const UserProfile = ({ onLogOff }) => {
     }
   };
 
+  const handleSchedulesPost = async (e) => {
+    e.preventDefault();
+
+    const toPostSchedulesEndpoint = "schedules";
+    try {
+      const schedulesData = {
+        ...formScheduleData,
+        barber_id: currentUser,
+      };
+      const response = await addItem(toPostSchedulesEndpoint, schedulesData);
+      if (response) {
+        console.log("Schedule added to your profile");
+        setFormScheduleData(initSchedule);
+        setSchedule((prevSchedule) => [...prevSchedule, response]);
+      } else {
+        console.error("Error adding schedule");
+      }
+    } catch (err) {
+      console.error("error creating schedule", err);
+    }
+  };
+
+  // Handle stars render
   const renderStars = (rating) => {
     return "⭐".repeat(rating);
   };
-
-
 
   if (!user) {
     return <div>Loading...</div>;
@@ -235,7 +270,7 @@ const UserProfile = ({ onLogOff }) => {
                   <input
                     type="text"
                     id="service_name"
-                    value={formData.service_name}
+                    value={formServicesData.service_name}
                     onChange={handleInputChange}
                     required
                   />
@@ -245,7 +280,7 @@ const UserProfile = ({ onLogOff }) => {
                   <input
                     type="number"
                     id="price"
-                    value={formData.price}
+                    value={formServicesData.price}
                     onChange={handleInputChange}
                     required
                   />
@@ -269,7 +304,7 @@ const UserProfile = ({ onLogOff }) => {
                   <input
                     type="text"
                     id="service_name"
-                    value={formData.service_name}
+                    value={formServicesData.service_name}
                     onChange={handleInputChange}
                     required
                   />
@@ -279,7 +314,7 @@ const UserProfile = ({ onLogOff }) => {
                   <input
                     type="number"
                     id="price"
-                    value={formData.price}
+                    value={formServicesData.price}
                     onChange={handleInputChange}
                     required
                   />
@@ -293,7 +328,7 @@ const UserProfile = ({ onLogOff }) => {
           </div>
         </div>
       ) : null}
-      <button onClick={ onLogOff}>Log off</button>
+      <button onClick={onLogOff}>Log off</button>
     </div>
   );
 };
