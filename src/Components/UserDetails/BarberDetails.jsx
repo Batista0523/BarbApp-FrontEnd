@@ -13,6 +13,11 @@ function BarberDetails() {
   const [barberSchedule, setBarberSchedule] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [notification, setNotification] = useState(null);
+  const [initAppointment, setInitAppointment] = useState({
+    appointment_date: "",
+    appointment_time: "",
+  });
+  const [appointmentData, setAppointmentData] = useState(initAppointment);
   const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
   const [formData, setFormData] = useState(initialize);
   const { user: currentUser } = useAuth();
@@ -120,6 +125,7 @@ function BarberDetails() {
     try {
       if (!currentUser) {
         alert("Please log in to your account firts");
+        navigate("/login");
       }
       const reviewData = {
         ...formData,
@@ -142,6 +148,38 @@ function BarberDetails() {
       navigate("/login");
     }
   };
+  //Handle appointment input change
+  const handleAppointmentInputChange = (e) => {
+    const { id, value } = e.target;
+    setAppointmentData({ ...appointmentData, [id]: value });
+  };
+
+// Handle appointment post
+const handleAppointmentPost = async (e) => {
+  e.preventDefault();
+  const toPostAppointmentEndpoint = "appointments";
+  try {
+    if (!currentUser) {
+      alert("Please Log in to your account in order to make an appointment");
+      navigate("/login");
+    }
+    const ServerAppointmentData = {
+      ...appointmentData,
+      barber_id: id,
+      customer_id: currentUser.id, 
+    };
+    const response = await addItem(toPostAppointmentEndpoint, ServerAppointmentData);
+    if (response) {
+      console.log(response, 'response here');
+      alert("Appointment scheduled");
+      setAppointmentData(initAppointment);
+    } else {
+      console.error("Error creating appointment");
+    }
+  } catch (error) {
+    console.error("Internal error front end to create appointment", error);
+  }
+};
 
   // Helper function to display star rating
   const renderStars = (rating) => {
@@ -247,6 +285,32 @@ function BarberDetails() {
               ))
             )}
           </div>
+          <div className="post appointment">
+            <h4>Make Appointment</h4>
+            <form onSubmit={handleAppointmentPost}>
+              <div>
+                <label htmlFor="appointments">Appointment Date</label>
+                <input
+                  type="date"
+                  name="appointment_date"
+                  id="appointment_date"
+                  value={appointmentData.appointment_date}
+                  onChange={handleAppointmentInputChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="appointments">Appointment time</label>
+                <input
+                  type="time"
+                  name="appointment_time"
+                  id="appointment_time"
+                  value={appointmentData.appointment_time}
+                  onChange={handleAppointmentInputChange}
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">Make Appointment</button>
+            </form>
+          </div>
 
           <div className="appointments-container">
             <h4>Appointments Deatils</h4>
@@ -278,14 +342,6 @@ function BarberDetails() {
               })
             )}
           </div>
-          {!currentUser ? (
-            <Link to="/login" ><p>log in to create an appointment</p></Link>
-          ): (
-
-          <Link to={`/createAppointment/${barber.id}`}>
-            <h2>{`Create appointment with ${barber.name}`}</h2>
-          </Link>
-          )}
         </div>
       )}
     </div>
