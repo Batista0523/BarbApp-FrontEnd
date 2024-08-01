@@ -287,13 +287,13 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
 
   const calculateAverageRating = () => {
     if (reviews.length === 0) return null;
-
+  
     const totalStars = reviews.reduce((acc, review) => acc + review.rating, 0);
-    return totalStars / reviews.length;
+    const averageRating = totalStars / reviews.length;
+    return averageRating.toFixed(2);
   };
 
-
-  const averageRating = currentUser.role === "barber" ? calculateAverageRating(reviews, Number(id)) : null;
+ 
   if (!user) return <div>Loading...</div>;
 
   return (
@@ -312,7 +312,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <p>Name: {user.name}</p>
           <p>Phone: {user.phone_number}</p>
           <p>Email: {user.email}</p>
-          <h2>Your Rating: {renderStars(averageRating )}</h2>
+          <p>Your Rating: {`${calculateAverageRating()|| "No reviews yet"} ⭐️`} </p>
           <div className="review-container">
             <h4>Your Reviews</h4>
             {reviews.length === 0 ? (
@@ -321,7 +321,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
               reviews.map((review, index) => (
                 <div key={index}>
                   <p>Stars: {renderStars(review.rating)}</p>
-                  <p>Review: {review.review_text}</p>
+                  <p>Comments: {review.review_text}</p>
                 </div>
               ))
             )}
