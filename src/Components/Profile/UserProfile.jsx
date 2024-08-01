@@ -25,6 +25,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [schedule, setSchedule] = useState([]);
 
   const [barberAppointments, setBarberAppointments] = useState([]);
@@ -60,11 +61,13 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
             fetchedReviews,
             fetchedServices,
             fetchedSchedule,
+            fetchedCustomers,
             fetchedAppointment,
           ] = await Promise.all([
             fetchAllItems(reviewEndpoint, id),
             fetchAllItems(servicesEndpoint, id),
             fetchAllItems(scheduleEndpoint, id),
+            fetchAllItems(userEndpoint),
             fetchAllItems(appointmentsEndpoint, id),
           ]);
 
@@ -72,8 +75,10 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
             fetchedReviews.success &&
             fetchedServices.success &&
             fetchedSchedule.success &&
+            fetchedCustomers.success &&
             fetchedAppointment.success
           ) {
+            setCustomers(fetchedCustomers.payload);
             setReviews(
               fetchedReviews.payload.filter(
                 (review) => review.barber_id === Number(id)
@@ -99,10 +104,12 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
               "Invalid format",
               fetchedReviews,
               fetchedServices,
+              fetchedCustomers,
               fetchedSchedule
             );
             setReviews([]);
             setServices([]);
+            setCustomers([]);
             setSchedule([]);
             setBarberAppointments([]);
           }
@@ -112,6 +119,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
         setUser(null);
         setReviews([]);
         setServices([]);
+        setCustomers([]);
         setSchedule([]);
         setBarberAppointments([]);
       }
@@ -439,37 +447,43 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
             {!barberAppointments ? (
               <div>Loading appointments...</div>
             ) : (
-              barberAppointments.map((appointment, index) => (
-                <div key={index}>
-                  <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
-                  <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
-                  <p>{`Status: ${appointment.status}`}</p>
-                  {currentUser && currentUser.role === "barber" && (
-                    <div>
-                      <button
-                        onClick={() =>
-                          handleAppointmentStatusUpdate(
-                            appointment.id,
-                            "completed"
-                          )
-                        }
-                      >
-                        Mark as Completed
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleAppointmentStatusDelete(
-                            appointment.id,
-                            "canceled"
-                          )
-                        }
-                      >
-                        Cancel Appointment
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))
+              barberAppointments.map((appointment, index) => {
+                const customer = customers.find(
+                  (customer) => customer.id === appointment.customer_id
+                );
+                return (
+                  <div key={index}>
+                    <p>Customer name: {customer.name}</p>
+                    <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
+                    <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
+                    <p>{`Status: ${appointment.status}`}</p>
+                    {currentUser && currentUser.role === "barber" && (
+                      <div>
+                        <button
+                          onClick={() =>
+                            handleAppointmentStatusUpdate(
+                              appointment.id,
+                              "completed"
+                            )
+                          }
+                        >
+                          Mark as Completed
+                        </button>
+                        <button
+                          onClick={() =>
+                            handleAppointmentStatusDelete(
+                              appointment.id,
+                              "canceled"
+                            )
+                          }
+                        >
+                          Cancel Appointment
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
