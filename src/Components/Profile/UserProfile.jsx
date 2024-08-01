@@ -285,6 +285,15 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   };
   const renderStars = (rating) => "⭐".repeat(rating);
 
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return null;
+
+    const totalStars = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return totalStars / reviews.length;
+  };
+
+
+  const averageRating = currentUser.role === "barber" ? calculateAverageRating(reviews, Number(id)) : null;
   if (!user) return <div>Loading...</div>;
 
   return (
@@ -303,6 +312,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <p>Name: {user.name}</p>
           <p>Phone: {user.phone_number}</p>
           <p>Email: {user.email}</p>
+          <h2>Your Rating: {renderStars(averageRating )}</h2>
           <div className="review-container">
             <h4>Your Reviews</h4>
             {reviews.length === 0 ? (
@@ -310,7 +320,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
             ) : (
               reviews.map((review, index) => (
                 <div key={index}>
-                  <p>Rating: {renderStars(review.rating)}</p>
+                  <p>Stars: {renderStars(review.rating)}</p>
                   <p>Review: {review.review_text}</p>
                 </div>
               ))
@@ -457,7 +467,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                     <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
                     <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
                     <p>{`Status: ${appointment.status}`}</p>
-                    {currentUser && currentUser.role === "barber" && (
+                    {currentUser.role === "barber" && (
                       <div>
                         <button
                           onClick={() =>
