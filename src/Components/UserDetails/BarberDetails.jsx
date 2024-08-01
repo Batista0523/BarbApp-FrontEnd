@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
-import { fetchOneItem, addItem, fetchAllItems } from "../../helpers/apiCalls";
+import {
+  fetchOneItem,
+  addItem,
+  fetchAllItems,
+  updateItem,
+  deleteItem,
+} from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
 
-function BarberDetails() {
+function BarberDetails({formatDate, formatTime}) {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
   const [barberReview, setBarberReview] = useState([]);
@@ -16,12 +22,14 @@ function BarberDetails() {
   const [initAppointment, setInitAppointment] = useState({
     appointment_date: "",
     appointment_time: "",
+    status: "scheduled",
   });
   const [appointmentData, setAppointmentData] = useState(initAppointment);
   const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
   const [formData, setFormData] = useState(initialize);
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
+
   useEffect(() => {
     const userEndpoint = "users";
     const reviewEndpoint = "reviews";
@@ -39,7 +47,7 @@ function BarberDetails() {
             console.error("Invalid response format:", userDetails);
             setBarber([]);
           }
-          // Fetch services, appointments, reviews, schedules ,and customers
+          // Fetch services, appointments, reviews, schedules, and customers
           const [
             fetchedBarberServices,
             fetchedBarberAppointments,
@@ -62,7 +70,7 @@ function BarberDetails() {
             fetchedSchedules.success
           ) {
             setCustomers(fetchedCustomers.payload);
-            // use Filter method to filter the barber_id and convert the id from string to number
+            // Use Filter method to filter the barber_id and convert the id from string to number
             setBarberReview(
               fetchedBarberReviews.payload.filter(
                 (Review) => Review.barber_id === Number(id)
@@ -124,7 +132,7 @@ function BarberDetails() {
     const toCreateReviewEndpoint = "reviews";
     try {
       if (!currentUser) {
-        alert("Please log in to your account firts");
+        alert("Please log in to your account first");
         navigate("/login");
       }
       const reviewData = {
@@ -148,57 +156,96 @@ function BarberDetails() {
       navigate("/login");
     }
   };
-  //Handle appointment input change
+
+  // Handle appointment input change
   const handleAppointmentInputChange = (e) => {
     const { id, value } = e.target;
     setAppointmentData({ ...appointmentData, [id]: value });
   };
 
-// Handle appointment post
-const handleAppointmentPost = async (e) => {
-  e.preventDefault();
-  const toPostAppointmentEndpoint = "appointments";
-  try {
-    if (!currentUser) {
-      alert("Please Log in to your account in order to make an appointment");
-      navigate("/login");
+  // Handle appointment post
+  const handleAppointmentPost = async (e) => {
+    e.preventDefault();
+    const toPostAppointmentEndpoint = "appointments";
+    try {
+      if (!currentUser) {
+        alert("Please log in to your account in order to make an appointment");
+        navigate("/login");
+      }
+      const ServerAppointmentData = {
+        ...appointmentData,
+        barber_id: id,
+        customer_id: currentUser.id,
+      };
+      const response = await addItem(
+        toPostAppointmentEndpoint,
+        ServerAppointmentData
+      );
+      if (response) {
+        console.log(response, "response here");
+        alert("Appointment scheduled");
+        setAppointmentData(initAppointment);
+      } else {
+        console.error("Error creating appointment");
+      }
+    } catch (error) {
+      console.error("Internal error front end to create appointment", error);
     }
-    const ServerAppointmentData = {
-      ...appointmentData,
-      barber_id: id,
-      customer_id: currentUser.id, 
-    };
-    const response = await addItem(toPostAppointmentEndpoint, ServerAppointmentData);
-    if (response) {
-      console.log(response, 'response here');
-      alert("Appointment scheduled");
-      setAppointmentData(initAppointment);
-    } else {
-      console.error("Error creating appointment");
-    }
-  } catch (error) {
-    console.error("Internal error front end to create appointment", error);
-  }
-};
+  };
+
+  // Handle appointment status update
+// const handleAppointmentStatusUpdate = async (appointmentId, newStatus) => {
+//   const toUpdateAppointmentEndpoint = `appointments/${appointmentId}/complete`;
+//   try {
+//     const response = await updateItem(toUpdateAppointmentEndpoint, {
+//       status: newStatus,
+//     });
+//     if (response.success) {
+//       // Update the state to reflect the change
+//       setBarberAppointments((prevAppointments) =>
+//         prevAppointments.map((appointment) =>
+//           appointment.id === appointmentId
+//             ? { ...appointment, status: newStatus }
+//             : appointment
+//         )
+//       );
+//       alert("Appointment status updated");
+//     } else {
+//       console.error("Error updating appointment status");
+//     }
+//   } catch (error) {
+//     console.error("Error updating appointment status", error);
+//   }
+// };
+
+// // Handle appointment delete
+// const handleAppointmentStatusDelete = async (appointmentId) => {
+//   const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
+//   try {
+//     const response = await deleteItem(toDeleteAppointmentEndpoint);
+//     if (response.success) {
+//       // Update the state to remove the deleted appointment
+//       setBarberAppointments((prevAppointments) =>
+//         prevAppointments.filter(
+//           (appointment) => appointment.id !== appointmentId
+//         )
+//       );
+//       alert("Appointment deleted");
+//     } else {
+//       console.error("Error deleting appointment");
+//     }
+//   } catch (error) {
+//     console.error("Error deleting appointment", error);
+//   }
+// };
+
 
   // Helper function to display star rating
   const renderStars = (rating) => {
     return "⭐".repeat(rating);
   };
 
-  // Utility functions for date and time formatting
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "long", day: "numeric" };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
-
-  const formatTime = (timeString) => {
-    const [hour, minute] = timeString.split(":");
-    const period = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 || 12; // Convert to 12-hour format
-    return `${formattedHour}:${minute} ${period}`;
-  };
-
+ 
   return (
     <div className="barber-details-container">
       {!barber ? (
@@ -285,62 +332,34 @@ const handleAppointmentPost = async (e) => {
               ))
             )}
           </div>
-          <div className="post appointment">
+    
+          <div className="post-appointment">
             <h4>Make Appointment</h4>
             <form onSubmit={handleAppointmentPost}>
               <div>
-                <label htmlFor="appointments">Appointment Date</label>
+                <label htmlFor="appointment_date">Date</label>
                 <input
                   type="date"
-                  name="appointment_date"
                   id="appointment_date"
                   value={appointmentData.appointment_date}
                   onChange={handleAppointmentInputChange}
+                  required
                 />
               </div>
               <div>
-                <label htmlFor="appointments">Appointment time</label>
+                <label htmlFor="appointment_time">Time</label>
                 <input
                   type="time"
-                  name="appointment_time"
                   id="appointment_time"
                   value={appointmentData.appointment_time}
                   onChange={handleAppointmentInputChange}
+                  required
                 />
               </div>
-              <button type="submit" className="btn btn-primary">Make Appointment</button>
+              <button type="submit" className="btn btn-primary">
+                Schedule Appointment
+              </button>
             </form>
-          </div>
-
-          <div className="appointments-container">
-            <h4>Appointments Deatils</h4>
-            {!barberAppointments ? (
-              <div>Loading appointments...</div>
-            ) : (
-              barberAppointments.map((appointment, index) => {
-                const service = barberServices.find(
-                  (service) => service.id === appointment.service_id
-                );
-                const customer = customers.find(
-                  (customer) => customer.id === appointment.customer_id
-                );
-                return (
-                  <div key={index}>
-                    <div>
-                      <p>{`${customer.name} has scheduled an appointment with ${
-                        barber.name
-                      } for the services -${
-                        service.service_name
-                      } agree to pay the amount of $${
-                        service.price
-                      } on the day ${formatDate(
-                        appointment.appointment_date
-                      )} at ${formatTime(appointment.appointment_time)}`}</p>
-                    </div>
-                  </div>
-                );
-              })
-            )}
           </div>
         </div>
       )}

@@ -43,9 +43,9 @@ const addItem = (endpoint, data) => {
     .then(handleResponse)
     .catch(handleError);
 };
-const updateItem = (endpoint, id, data) => {
+const updateItem = (endpoint, data) => {
   return axios
-    .put(`${baseURL}/${endpoint}/${id}`, data, {
+    .put(`${baseURL}/${endpoint}`, data, {
       headers: {
         "Content-Type": "application/json",
       },
@@ -54,12 +54,10 @@ const updateItem = (endpoint, id, data) => {
     .catch(handleError);
 };
 
-
-const deleteItem = (endpoint, id) => {
+const deleteItem = (endpoint) => {
   return axios
-    .delete(`${baseURL}/${endpoint}/${id}`)
+    .delete(`${baseURL}/${endpoint}`)
     .then(handleResponse)
     .catch(handleError);
 };
-
 export { fetchAllItems, fetchOneItem, addItem, updateItem, deleteItem,};

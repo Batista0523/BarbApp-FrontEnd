@@ -13,6 +13,17 @@ import CustomerDetails from "./Components/UserDetails/CustomerDetails";
 // import CreateAppointments from "./Pages/CreateAppointments";
 function App() {
   const { user, logout } = useAuth();
+  const formatDate = (dateString) => {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  };
+
+  const formatTime = (timeString) => {
+    const [hour, minute] = timeString.split(":");
+    const period = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 || 12; // Convert to 12-hour format
+    return `${formattedHour}:${minute} ${period}`;
+  };
 
   return (
     <Router>
@@ -23,7 +34,7 @@ function App() {
           <Route path="/barbers" element={<Barbers />} />
           <Route 
             path="/oneBarber/:id" 
-            element={ <BarberDetails />} 
+            element={ <BarberDetails formatDate={formatDate} formatTime={formatTime}/>} 
           />
           <Route 
             path="/oneCustomer/:id" 
@@ -32,7 +43,7 @@ function App() {
           <Route path="/reviews" element={<Reviews />} />
           <Route 
             path="/profile/:id" 
-            element={user ? <UserProfile onLogOff={logout} /> : <Navigate to="/login" />} 
+            element={user ? <UserProfile formatDate={formatDate} formatTime={formatTime} onLogOff={logout} /> : <Navigate to="/login" />} 
           />
           {/* <Route path="/createAppointment/:id" element={<CreateAppointments/>}/> */}
           <Route path="/login" element={!user ? <Login /> : <Navigate to="/" />} />

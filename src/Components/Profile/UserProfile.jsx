@@ -12,15 +12,22 @@ import {
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
 
-const UserProfile = ({ onLogOff }) => {
+const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user: currentUser } = useAuth();
-
+  const [initAppointment, setInitAppointment] = useState({
+    appointment_date: "",
+    appointment_time: "",
+    status: "scheduled",
+  });
+  const [appointmentData, setAppointmentData] = useState(initAppointment);
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
   const [schedule, setSchedule] = useState([]);
+
+  const [barberAppointments, setBarberAppointments] = useState([]);
   const [formServicesData, setFormServicesData] = useState({
     service_name: "",
     price: 0,
@@ -34,31 +41,70 @@ const UserProfile = ({ onLogOff }) => {
   const [editingService, setEditingService] = useState(null);
 
   useEffect(() => {
+    const userEndpoint = "users";
+    const reviewEndpoint = "reviews";
+    const servicesEndpoint = "services";
+    const appointmentsEndpoint = "appointments";
+    const scheduleEndpoint = "schedules";
     const getUserDetails = async () => {
       try {
         if (id) {
-          const userDetails = await fetchOneItem("users", id);
+          const userDetails = await fetchOneItem(userEndpoint, id);
           if (userDetails.success) {
             setUser(userDetails.payload);
           } else {
             console.error("Invalid response format:", userDetails);
             setUser(null);
           }
-          const [fetchedReviews, fetchedServices, fetchedSchedule] = await Promise.all([
-            fetchAllItems("reviews", id),
-            fetchAllItems("services", id),
-            fetchAllItems("schedules", id),
+          const [
+            fetchedReviews,
+            fetchedServices,
+            fetchedSchedule,
+            fetchedAppointment,
+          ] = await Promise.all([
+            fetchAllItems(reviewEndpoint, id),
+            fetchAllItems(servicesEndpoint, id),
+            fetchAllItems(scheduleEndpoint, id),
+            fetchAllItems(appointmentsEndpoint, id),
           ]);
 
-          if (fetchedReviews.success && fetchedServices.success && fetchedSchedule.success) {
-            setReviews(fetchedReviews.payload.filter(review => review.barber_id === Number(id)));
-            setServices(fetchedServices.payload.filter(service => service.barber_id === Number(id)));
-            setSchedule(fetchedSchedule.payload.filter(schedule => schedule.barber_id === Number(id)));
+          if (
+            fetchedReviews.success &&
+            fetchedServices.success &&
+            fetchedSchedule.success &&
+            fetchedAppointment.success
+          ) {
+            setReviews(
+              fetchedReviews.payload.filter(
+                (review) => review.barber_id === Number(id)
+              )
+            );
+            setServices(
+              fetchedServices.payload.filter(
+                (service) => service.barber_id === Number(id)
+              )
+            );
+            setSchedule(
+              fetchedSchedule.payload.filter(
+                (schedule) => schedule.barber_id === Number(id)
+              )
+            );
+            setBarberAppointments(
+              fetchedAppointment.payload.filter(
+                (Appointments) => Appointments.barber_id === Number(id)
+              )
+            );
           } else {
-            console.error("Invalid format", fetchedReviews, fetchedServices, fetchedSchedule);
+            console.error(
+              "Invalid format",
+              fetchedReviews,
+              fetchedServices,
+              fetchedSchedule
+            );
             setReviews([]);
             setServices([]);
             setSchedule([]);
+            setBarberAppointments([]);
           }
         }
       } catch (error) {
@@ -67,6 +113,7 @@ const UserProfile = ({ onLogOff }) => {
         setReviews([]);
         setServices([]);
         setSchedule([]);
+        setBarberAppointments([]);
       }
     };
     getUserDetails();
@@ -82,7 +129,7 @@ const UserProfile = ({ onLogOff }) => {
           onClick: async () => {
             try {
               await deleteItem("services", service.id);
-              setServices(services.filter(s => s.id !== service.id));
+              setServices(services.filter((s) => s.id !== service.id));
             } catch (err) {
               console.error("Error deleting service", err);
             }
@@ -105,14 +152,27 @@ const UserProfile = ({ onLogOff }) => {
   const handleUpdateServices = async (e) => {
     e.preventDefault();
     try {
-      const updatedFormData = { ...formServicesData, barber_id: currentUser.id };
-      const updateResponse = await updateItem("services", editingService.id, updatedFormData);
+      const updatedFormData = {
+        ...formServicesData,
+        barber_id: currentUser.id,
+      };
+      const updateResponse = await updateItem(
+        "services",
+        editingService.id,
+        updatedFormData
+      );
       if (updateResponse?.payload?.id) {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
         setFormServicesData({ service_name: "", price: 0 });
-        setServices(services.map(service => (service.id === updateResponse.payload.id ? updateResponse.payload : service)));
+        setServices(
+          services.map((service) =>
+            service.id === updateResponse.payload.id
+              ? updateResponse.payload
+              : service
+          )
+        );
       } else {
         console.error("Unexpected response format", updateResponse);
         alert("Update failed. Please try again.");
@@ -130,7 +190,7 @@ const UserProfile = ({ onLogOff }) => {
 
   const handleInputServicesChange = (e) => {
     const { id, value } = e.target;
-    setFormServicesData(prevData => ({ ...prevData, [id]: value }));
+    setFormServicesData((prevData) => ({ ...prevData, [id]: value }));
   };
 
   const handleServicesPost = async (e) => {
@@ -141,7 +201,7 @@ const UserProfile = ({ onLogOff }) => {
       if (response) {
         alert("Service added!");
         setFormServicesData({ service_name: "", price: 0 });
-        setServices(prevServices => [...prevServices, response]);
+        setServices((prevServices) => [...prevServices, response]);
       } else {
         console.error("Error adding service", response);
       }
@@ -158,7 +218,7 @@ const UserProfile = ({ onLogOff }) => {
       if (response) {
         alert("Schedule added!");
         setFormScheduleData({ day_of_week: "", start_time: "", end_time: "" });
-        setSchedule(prevSchedule => [...prevSchedule, response]);
+        setSchedule((prevSchedule) => [...prevSchedule, response]);
       } else {
         console.error("Error adding schedule");
       }
@@ -169,9 +229,52 @@ const UserProfile = ({ onLogOff }) => {
 
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
-    setFormScheduleData(prevData => ({ ...prevData, [id]: value }));
+    setFormScheduleData((prevData) => ({ ...prevData, [id]: value }));
+  };
+  const handleAppointmentStatusUpdate = async (appointmentId, newStatus) => {
+    const toUpdateAppointmentEndpoint = `appointments/${appointmentId}/complete`;
+    try {
+      const response = await updateItem(toUpdateAppointmentEndpoint, {
+        status: newStatus,
+      });
+      if (response.success) {
+        // Update the state to reflect the change
+        setBarberAppointments((prevAppointments) =>
+          prevAppointments.map((appointment) =>
+            appointment.id === appointmentId
+              ? { ...appointment, status: newStatus }
+              : appointment
+          )
+        );
+        alert("Appointment status updated");
+      } else {
+        console.error("Error updating appointment status");
+      }
+    } catch (error) {
+      console.error("Error updating appointment status", error);
+    }
   };
 
+  // Handle appointment delete
+  const handleAppointmentStatusDelete = async (appointmentId) => {
+    const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
+    try {
+      const response = await deleteItem(toDeleteAppointmentEndpoint);
+      if (response.success) {
+        // Update the state to remove the deleted appointment
+        setBarberAppointments((prevAppointments) =>
+          prevAppointments.filter(
+            (appointment) => appointment.id !== appointmentId
+          )
+        );
+        alert("Appointment deleted");
+      } else {
+        console.error("Error deleting appointment");
+      }
+    } catch (error) {
+      console.error("Error deleting appointment", error);
+    }
+  };
   const renderStars = (rating) => "⭐".repeat(rating);
 
   if (!user) return <div>Loading...</div>;
@@ -214,7 +317,9 @@ const UserProfile = ({ onLogOff }) => {
                 <div key={index}>
                   <p>Service: {service.service_name}</p>
                   <p>Price: {service.price}</p>
-                  <button onClick={() => handleDeleteServices(service)}>DELETE</button>
+                  <button onClick={() => handleDeleteServices(service)}>
+                    DELETE
+                  </button>
                   <button onClick={() => handleEditClick(service)}>EDIT</button>
                 </div>
               ))
@@ -241,8 +346,16 @@ const UserProfile = ({ onLogOff }) => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">Update Service</button>
-                <button type="button" className="btn btn-secondary" onClick={handleCancelEdit}>Cancel</button>
+                <button type="submit" className="btn btn-primary">
+                  Update Service
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={handleCancelEdit}
+                >
+                  Cancel
+                </button>
               </form>
             ) : (
               <form onSubmit={handleServicesPost}>
@@ -266,7 +379,9 @@ const UserProfile = ({ onLogOff }) => {
                     required
                   />
                 </div>
-                <button type="submit" className="btn btn-primary">Add Service</button>
+                <button type="submit" className="btn btn-primary">
+                  Add Service
+                </button>
               </form>
             )}
           </div>
@@ -314,12 +429,54 @@ const UserProfile = ({ onLogOff }) => {
                   required
                 />
               </div>
-              <button type="submit" className="btn btn-primary">Add Schedule</button>
+              <button type="submit" className="btn btn-primary">
+                Add Schedule
+              </button>
             </form>
+          </div>
+          <div className="appointment-container">
+            <h4>Appointments</h4>
+            {!barberAppointments ? (
+              <div>Loading appointments...</div>
+            ) : (
+              barberAppointments.map((appointment, index) => (
+                <div key={index}>
+                  <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
+                  <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
+                  <p>{`Status: ${appointment.status}`}</p>
+                  {currentUser && currentUser.role === "barber" && (
+                    <div>
+                      <button
+                        onClick={() =>
+                          handleAppointmentStatusUpdate(
+                            appointment.id,
+                            "completed"
+                          )
+                        }
+                      >
+                        Mark as Completed
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleAppointmentStatusDelete(
+                            appointment.id,
+                            "canceled"
+                          )
+                        }
+                      >
+                        Cancel Appointment
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
           </div>
         </div>
       ) : null}
-      <button className="btn btn-primary" onClick={onLogOff}>log off</button>
+      <button className="btn btn-primary" onClick={onLogOff}>
+        log off
+      </button>
     </div>
   );
 };
