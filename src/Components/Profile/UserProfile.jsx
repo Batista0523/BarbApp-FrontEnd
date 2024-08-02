@@ -126,8 +126,9 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     };
     getUserDetails();
   }, [id]);
-
+  // Handle delete services
   const handleDeleteServices = (service) => {
+    const toDeleteServicesEndpoint = "sevices";
     confirmAlert({
       title: "Confirm to delete",
       message: "Are You Sure You Want To Delete This Service?",
@@ -136,7 +137,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           label: "Yes",
           onClick: async () => {
             try {
-              await deleteItem("services", service.id);
+              await deleteItem(toDeleteServicesEndpoint, service.id);
               setServices(services.filter((s) => s.id !== service.id));
             } catch (err) {
               console.error("Error deleting service", err);
@@ -156,16 +157,17 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       price: service.price,
     });
   };
-
+  // Handle update services
   const handleUpdateServices = async (e) => {
     e.preventDefault();
+    const toUpdateServicesEndpoint = "services";
     try {
       const updatedFormData = {
         ...formServicesData,
         barber_id: currentUser.id,
       };
       const updateResponse = await updateItem(
-        "services",
+        toUpdateServicesEndpoint,
         editingService.id,
         updatedFormData
       );
@@ -200,7 +202,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     const { id, value } = e.target;
     setFormServicesData((prevData) => ({ ...prevData, [id]: value }));
   };
-
+  // Handle create services
   const handleServicesPost = async (e) => {
     e.preventDefault();
     try {
@@ -217,7 +219,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error creating service", err);
     }
   };
-
+  // Handle create schedule
   const handleSchedulesPost = async (e) => {
     e.preventDefault();
     try {
@@ -264,36 +266,49 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   };
 
   // Handle appointment delete
-  const handleAppointmentStatusDelete = async (appointmentId) => {
+  const handleAppointmentStatusDelete = (appointmentId) => {
     const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
-    try {
-      const response = await deleteItem(toDeleteAppointmentEndpoint);
-      if (response.success) {
-        // Update the state to remove the deleted appointment
-        setBarberAppointments((prevAppointments) =>
-          prevAppointments.filter(
-            (appointment) => appointment.id !== appointmentId
-          )
-        );
-        alert("Appointment deleted");
-      } else {
-        console.error("Error deleting appointment");
-      }
-    } catch (error) {
-      console.error("Error deleting appointment", error);
-    }
+    confirmAlert({
+      title: "Confirm to delete",
+      message: "Are You Sure You Want To Cancel This Appointment?",
+      buttons: [
+        {
+          label: "Yes",
+          onClick: async () => {
+            try {
+              const response = await deleteItem(toDeleteAppointmentEndpoint);
+              if (response.success) {
+                // Update the state to remove the deleted appointment
+                setBarberAppointments((prevAppointments) =>
+                  prevAppointments.filter(
+                    (appointment) => appointment.id !== appointmentId
+                  )
+                );
+                alert("Appointment deleted");
+              } else {
+                console.error("Error deleting appointment");
+              }
+            } catch (error) {
+              console.error("Error deleting appointment", error);
+            }
+          },
+        },
+        {
+          label: "No",
+        },
+      ],
+    });
   };
   const renderStars = (rating) => "⭐".repeat(rating);
 
   const calculateAverageRating = () => {
     if (reviews.length === 0) return null;
-  
+
     const totalStars = reviews.reduce((acc, review) => acc + review.rating, 0);
     const averageRating = totalStars / reviews.length;
     return averageRating.toFixed(2);
   };
 
- 
   if (!user) return <div>Loading...</div>;
 
   return (
@@ -312,7 +327,9 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <p>Name: {user.name}</p>
           <p>Phone: {user.phone_number}</p>
           <p>Email: {user.email}</p>
-          <p>Your Rating: {`${calculateAverageRating()|| "No reviews yet"} ⭐️`} </p>
+          <p>
+            Your Rating: {`${calculateAverageRating() || "No reviews yet"} ⭐️`}{" "}
+          </p>
           <div className="review-container">
             <h4>Your Reviews</h4>
             {reviews.length === 0 ? (
