@@ -265,6 +265,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     }
   };
 
+  
   // Handle appointment delete
   const handleAppointmentStatusDelete = (appointmentId) => {
     const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
