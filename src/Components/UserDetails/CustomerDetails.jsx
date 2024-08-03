@@ -1,22 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { fetchOneItem } from "../../helpers/apiCalls";
-import { useParams } from "react-router-dom";
 
+//maybe i dont need this component i will leave it here for now 
+
+
+import React, { useEffect, useState } from "react";
+import { fetchAllItems, fetchOneItem } from "../../helpers/apiCalls";
+import { useParams } from "react-router-dom";
+import { useAuth } from "../../AuthContext";
 function CustomerDetails() {
   const [customer, setCustomer] = useState([]);
   const { id } = useParams();
-
+  const { user: currentUser } = useAuth();
   useEffect(() => {
     const customerEndpoint = "users";
 
     const CustomerData = async () => {
       try {
         if (id) {
-          let fecthedCustomer = await fetchOneItem(customerEndpoint, id);
+          const fecthedCustomer = await fetchOneItem(customerEndpoint, id);
           if (fecthedCustomer.success) {
-            fecthedCustomer = fecthedCustomer.payload;
-            setCustomer(fecthedCustomer);
-           
+            setCustomer(fecthedCustomer.payload);
           } else {
             console.error("Invalid response format: ", fecthedCustomer);
           }
@@ -36,7 +38,6 @@ function CustomerDetails() {
           <div>Loading details</div>
         ) : (
           <div>
-           
             <h3>{customer.email}</h3>
             <h3>{customer.phone_number}</h3>
             <h3>{customer.address}</h3>

@@ -7,6 +7,7 @@ function Barbers() {
   const [customers, setCustomer] = useState([]);
   useEffect(() => {
     const endpoint = "users";
+    
     fetchAllItems(endpoint)
       .then((response) => {
         const barberData = response.payload.filter(

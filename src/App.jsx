@@ -25,6 +25,14 @@ function App() {
     return `${formattedHour}:${minute} ${period}`;
   };
 
+  // const calculateAverageRating = (reviews) => {
+  //   if (reviews.length === 0) return null;
+
+  //   const totalStars = reviews.reduce((acc, review) => acc + review.rating, 0);
+  //   const averageRating = totalStars / reviews.length;
+  //   return averageRating.toFixed(2);
+  // };
+
   return (
     <Router>
       <NavBar user={user} onLogOff={logout} />
@@ -34,7 +42,7 @@ function App() {
           <Route path="/barbers" element={<Barbers />} />
           <Route 
             path="/oneBarber/:id" 
-            element={ <BarberDetails formatDate={formatDate} formatTime={formatTime}/>} 
+            element={ <BarberDetails formatDate={formatDate} formatTime={formatTime} />} 
           />
           <Route 
             path="/oneCustomer/:id" 

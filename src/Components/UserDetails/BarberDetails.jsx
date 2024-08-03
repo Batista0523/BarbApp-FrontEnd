@@ -10,7 +10,7 @@ import {
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
 
-function BarberDetails({formatDate, formatTime}) {
+function BarberDetails({formatDate, formatTime ,}) {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
   const [barberReview, setBarberReview] = useState([]);
@@ -325,7 +325,7 @@ function BarberDetails({formatDate, formatTime}) {
               barberSchedule.map((schedule, index) => (
                 <div key={index}>
                   <p>{schedule.day_of_week}</p>
-                  <p>{`From ${schedule.start_time} To ${formatTime(
+                  <p>{`From ${formatTime(schedule.start_time)} To ${formatTime(
                     schedule.end_time
                   )}`}</p>
                 </div>

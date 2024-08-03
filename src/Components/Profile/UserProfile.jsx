@@ -11,6 +11,7 @@ import {
   updateItem,
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
+import Barbers from "../UserDetails/Users";
 
 const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const { id } = useParams();
@@ -94,11 +95,19 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 (schedule) => schedule.barber_id === Number(id)
               )
             );
-            setBarberAppointments(
-              fetchedAppointment.payload.filter(
-                (Appointments) => Appointments.barber_id === Number(id)
-              )
-            );
+            if (currentUser.role === "barber") {
+              setBarberAppointments(
+                fetchedAppointment.payload.filter(
+                  (appointment) => appointment.barber_id === Number(id)
+                )
+              );
+            } else if (currentUser.role === "customer") {
+              setBarberAppointments(
+                fetchedAppointment.payload.filter(
+                  (appointment) => appointment.customer_id === Number(id)
+                )
+              );
+            }
           } else {
             console.error(
               "Invalid format",
@@ -265,7 +274,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     }
   };
 
-  
   // Handle appointment delete
   const handleAppointmentStatusDelete = (appointmentId) => {
     const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
@@ -321,6 +329,15 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <p>Email: {user.email}</p>
           <p>Role: {user.role}</p>
           <p>Phone: {user.phone_number}</p>
+          <h2>Your Appointments</h2>
+          {barberAppointments.map((appointment) => (
+            <li key={appointment.id}>
+              {`Your Appointment details is on ${formatDate(
+                appointment.appointment_date
+              )} at ${formatTime(appointment.appointment_time)}`}
+              <p>Status : {appointment.status}</p>
+            </li>
+          ))}
         </div>
       ) : user.role === "barber" ? (
         <div className="barber-container">
