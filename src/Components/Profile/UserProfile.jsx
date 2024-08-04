@@ -332,13 +332,14 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <h2>Your Appointments</h2>
           {barberAppointments.map((appointment) => (
             <li key={appointment.id}>
-              {`Your Appointment details is on ${formatDate(
+              {`Your Appointment details is at ${formatDate(
                 appointment.appointment_date
               )} at ${formatTime(appointment.appointment_time)}`}
               <p>Status : {appointment.status}</p>
             </li>
           ))}
         </div>
+        
       ) : user.role === "barber" ? (
         <div className="barber-container">
           <h1>Barber Profile</h1>
