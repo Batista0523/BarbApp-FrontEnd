@@ -340,7 +340,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           ))}
         </div>
 
-        
+
       ) : user.role === "barber" ? (
         <div className="barber-container">
           <h1>Barber Profile</h1>
