@@ -11,24 +11,21 @@ import {
   updateItem,
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
-import Barbers from "../UserDetails/Users";
 
 const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const { id } = useParams();
-  const navigate = useNavigate();
+  // const navigate = useNavigate(); <--- in case i need it later
   const { user: currentUser } = useAuth();
-  const [initAppointment, setInitAppointment] = useState({
-    appointment_date: "",
-    appointment_time: "",
-    status: "scheduled",
+  const [reviewInitialize, setReviewInitialize] = useState({
+    rating: 0,
+    review_text: "",
   });
-  const [appointmentData, setAppointmentData] = useState(initAppointment);
+  const [reviewDatas, setReviewDatas] = useState(reviewInitialize);
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [schedule, setSchedule] = useState([]);
-
   const [barberAppointments, setBarberAppointments] = useState([]);
   const [formServicesData, setFormServicesData] = useState({
     service_name: "",
@@ -245,6 +242,35 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error creating schedule", err);
     }
   };
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setReviewDatas({ ...reviewDatas, [id]: value });
+  };
+  //Handle create Review
+
+  const handleReviewPost = async (e) => {
+    e.preventDefault();
+    const createReviewEndpoint = "reviews";
+    try {
+      const reviewData = {
+        ...reviewDatas,
+        barber_id: currentUser.id,
+        customer_id: id,
+      };
+      const response = await addItem(createReviewEndpoint, reviewData);
+      if (response) {
+        alert("Thanks for your rating");
+        setReviewDatas(reviewInitialize);
+        // setReviews((prevReviews) => [...prevReviews, response.payload]);
+      } else {
+        console.error("Error creating review", response);
+      }
+    } catch (err) {
+      console.error("Error creating review", err);
+    }
+  };
+
+  
 
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
@@ -336,11 +362,36 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 appointment.appointment_date
               )} at ${formatTime(appointment.appointment_time)}`}
               <p>Status : {appointment.status}</p>
+
             </li>
           ))}
+          {/* {appointment.status === "complete" && ( */}
+            <form onSubmit={handleReviewPost}>
+              <div>
+                <label htmlFor="raiting"> Rating</label>
+                <input
+                  type="number"
+                  id="rating"
+                  name="rating"
+                  value={reviewDatas.rating}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="review_text"> comment</label>
+                <input
+                  type="text"
+                  id="review_text"
+                  name="review_text"
+                  value={reviewDatas.review_text}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <button type="submit">Submit Review</button>
+            </form>
+          {/* )} */}
+          {/* checl if barber appointment is complete before post review */}
         </div>
-
-
       ) : user.role === "barber" ? (
         <div className="barber-container">
           <h1>Barber Profile</h1>

@@ -4,8 +4,6 @@ import {
   fetchOneItem,
   addItem,
   fetchAllItems,
-  updateItem,
-  deleteItem,
 } from "../../helpers/apiCalls";
 import { useAuth } from "../../AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -25,7 +23,7 @@ function BarberDetails({formatDate, formatTime ,}) {
     status: "scheduled",
   });
   const [appointmentData, setAppointmentData] = useState(initAppointment);
-  const [initialize, setInitialize] = useState({ rating: "", review_text: "" });
+  const [initialize, setInitialize] = useState({ rating: 0, review_text: "" });
   const [formData, setFormData] = useState(initialize);
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
