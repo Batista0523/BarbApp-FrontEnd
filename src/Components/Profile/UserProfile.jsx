@@ -248,6 +248,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error creating schedule", err);
     }
   };
+  
 
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
