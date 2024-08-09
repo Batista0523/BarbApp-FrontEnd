@@ -280,7 +280,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
 
   // Handle appointment delete
   const handleAppointmentStatusDelete = (appointmentId) => {
-    const toDeleteAppointmentEndpoint = `appointments/${appointmentId}`;
+    const toDeleteAppointmentEndpoint = "appointments";
     confirmAlert({
       title: "Confirm to delete",
       message: "Are You Sure You Want To Cancel This Appointment?",
@@ -289,7 +289,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           label: "Yes",
           onClick: async () => {
             try {
-              const response = await deleteItem(toDeleteAppointmentEndpoint);
+              const response = await deleteItem(toDeleteAppointmentEndpoint, appointmentId);
               if (response.success) {
                 // Update the state to remove the deleted appointment
                 setBarberAppointments((prevAppointments) =>
@@ -299,7 +299,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 );
                 alert("Appointment deleted");
               } else {
-                console.error("Error deleting appointment");
+                console.error("Error deleting appointment", response);
               }
             } catch (error) {
               console.error("Error deleting appointment", error);
@@ -312,6 +312,8 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       ],
     });
   };
+  
+  
   const renderStars = (rating) => "⭐".repeat(rating);
 
   const calculateAverageRating = () => {
