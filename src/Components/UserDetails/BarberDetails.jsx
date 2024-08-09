@@ -12,6 +12,8 @@ function BarberDetails({formatDate, formatTime ,}) {
   const { id } = useParams();
   const [barber, setBarber] = useState([]);
   const [barberReview, setBarberReview] = useState([]);
+  const [initialize, setInitialize] = useState({ rating: 0, review_text: "" });
+  const [formData, setFormData] = useState(initialize);
   const [barberServices, setBarberServices] = useState([]);
   const [barberAppointments, setBarberAppointments] = useState([]);
   const [barberSchedule, setBarberSchedule] = useState([]);
@@ -23,8 +25,6 @@ function BarberDetails({formatDate, formatTime ,}) {
     status: "scheduled",
   });
   const [appointmentData, setAppointmentData] = useState(initAppointment);
-  const [initialize, setInitialize] = useState({ rating: 0, review_text: "" });
-  const [formData, setFormData] = useState(initialize);
   const { user: currentUser } = useAuth();
   const navigate = useNavigate();
 
@@ -268,6 +268,8 @@ function BarberDetails({formatDate, formatTime ,}) {
                   <div>
                     <p>Rating: {renderStars(barberReviews.rating)}</p>
                     <p>Comments: {barberReviews.review_text}</p>
+                    <p>{`posted ${formatDate(barberReviews.created_at)}`}</p>
+                   
                   </div>
                 </div>
               ))

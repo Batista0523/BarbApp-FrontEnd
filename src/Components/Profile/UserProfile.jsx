@@ -212,7 +212,11 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const handleServicesPost = async (e) => {
     e.preventDefault();
     try {
-      const servicesData = { ...formServicesData, barber_id: currentUser.id };
+      const servicesData = {
+        ...formServicesData,
+        barber_id: id,
+        customers_id: currentUser.id,
+      };
       const response = await addItem("services", servicesData);
       if (response) {
         alert("Service added!");
@@ -254,14 +258,14 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     try {
       const reviewData = {
         ...reviewDatas,
-        barber_id: currentUser.id,
-        customer_id: id,
+        barber_id: id,
+        customer_id: currentUser.id,
       };
       const response = await addItem(createReviewEndpoint, reviewData);
       if (response) {
+        console.log("Review Added", response);
         alert("Thanks for your rating");
         setReviewDatas(reviewInitialize);
-        // setReviews((prevReviews) => [...prevReviews, response.payload]);
       } else {
         console.error("Error creating review", response);
       }
@@ -269,8 +273,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error creating review", err);
     }
   };
-
-  
 
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
@@ -362,34 +364,41 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 appointment.appointment_date
               )} at ${formatTime(appointment.appointment_time)}`}
               <p>Status : {appointment.status}</p>
-
             </li>
           ))}
-          {/* {appointment.status === "complete" && ( */}
-            <form onSubmit={handleReviewPost}>
-              <div>
-                <label htmlFor="raiting"> Rating</label>
-                <input
-                  type="number"
-                  id="rating"
-                  name="rating"
-                  value={reviewDatas.rating}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <div>
-                <label htmlFor="review_text"> comment</label>
-                <input
-                  type="text"
-                  id="review_text"
-                  name="review_text"
-                  value={reviewDatas.review_text}
-                  onChange={handleInputChange}
-                />
-              </div>
-              <button type="submit">Submit Review</button>
-            </form>
-          {/* )} */}
+          {barberAppointments.map((appointment) => (
+            <div key={appointment.id}>
+              {console.log(appointment, "appointment in return")}
+              {appointment.status === "complete" ? (
+                <form onSubmit={handleReviewPost}>
+                  <div>
+                    <label htmlFor="rating">Rating</label>
+                    <input
+                      type="number"
+                      id="rating"
+                      name="rating"
+                      value={reviewDatas.rating}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="review_text">Comment</label>
+                    <input
+                      type="text"
+                      id="review_text"
+                      name="review_text"
+                      value={reviewDatas.review_text}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                  <button type="submit">Submit Review</button>
+                </form>
+              ) : (
+                <p>No Completed appointment to make review</p>
+              )}
+            </div>
+          ))}
+
           {/* checl if barber appointment is complete before post review */}
         </div>
       ) : user.role === "barber" ? (
@@ -410,6 +419,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 <div key={index}>
                   <p>Stars: {renderStars(review.rating)}</p>
                   <p>Comments: {review.review_text}</p>
+                  <p>{`Posted ${formatDate(review.created_at)}`}</p>
                 </div>
               ))
             )}
