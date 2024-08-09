@@ -11,16 +11,13 @@ import {
   updateItem,
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
+// import Barbers from "../UserDetails/Users";
 
 const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const { id } = useParams();
   // const navigate = useNavigate(); <--- in case i need it later
   const { user: currentUser } = useAuth();
-  const [reviewInitialize, setReviewInitialize] = useState({
-    rating: 0,
-    review_text: "",
-  });
-  const [reviewDatas, setReviewDatas] = useState(reviewInitialize);
+  // const [reviewInitialize, setReviewInitialize] = useState({rating: "" , review_textz});
   const [user, setUser] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [services, setServices] = useState([]);
@@ -134,7 +131,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   }, [id]);
   // Handle delete services
   const handleDeleteServices = (service) => {
-    const toDeleteServicesEndpoint = "sevices";
+    const toDeleteServicesEndpoint = "services";
     confirmAlert({
       title: "Confirm to delete",
       message: "Are You Sure You Want To Delete This Service?",
@@ -143,8 +140,16 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           label: "Yes",
           onClick: async () => {
             try {
-              await deleteItem(toDeleteServicesEndpoint, service.id);
-              setServices(services.filter((s) => s.id !== service.id));
+              const response = await deleteItem(
+                toDeleteServicesEndpoint,
+                service.id
+              );
+              if (response) {
+                alert("Services deleted");
+                setServices(services.filter((s) => s.id !== service.id));
+              } else {
+                console.log("error deleting", response);
+              }
             } catch (err) {
               console.error("Error deleting service", err);
             }
@@ -166,27 +171,27 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   // Handle update services
   const handleUpdateServices = async (e) => {
     e.preventDefault();
-    const toUpdateServicesEndpoint = "services";
+
+    const updatedFormData = {
+      ...formServicesData,
+      barber_id: currentUser.id,
+    };
+
     try {
-      const updatedFormData = {
-        ...formServicesData,
-        barber_id: currentUser.id,
-      };
       const updateResponse = await updateItem(
-        toUpdateServicesEndpoint,
+        "services",
         editingService.id,
         updatedFormData
       );
-      if (updateResponse?.payload?.id) {
+
+      if (updateResponse.success) {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
         setFormServicesData({ service_name: "", price: 0 });
-        setServices(
-          services.map((service) =>
-            service.id === updateResponse.payload.id
-              ? updateResponse.payload
-              : service
+        setServices((prevServices) =>
+          prevServices.map((service) =>
+            service.id === updateResponse.id ? updateResponse : service
           )
         );
       } else {
@@ -195,6 +200,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       }
     } catch (error) {
       console.error("Error updating the services", error);
+      alert("Error updating the services. Please try again.");
     }
   };
 
@@ -212,11 +218,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const handleServicesPost = async (e) => {
     e.preventDefault();
     try {
-      const servicesData = {
-        ...formServicesData,
-        barber_id: id,
-        customers_id: currentUser.id,
-      };
+      const servicesData = { ...formServicesData, barber_id: currentUser.id };
       const response = await addItem("services", servicesData);
       if (response) {
         alert("Service added!");
@@ -244,33 +246,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       }
     } catch (err) {
       console.error("Error creating schedule", err);
-    }
-  };
-  const handleInputChange = (e) => {
-    const { id, value } = e.target;
-    setReviewDatas({ ...reviewDatas, [id]: value });
-  };
-  //Handle create Review
-
-  const handleReviewPost = async (e) => {
-    e.preventDefault();
-    const createReviewEndpoint = "reviews";
-    try {
-      const reviewData = {
-        ...reviewDatas,
-        barber_id: id,
-        customer_id: currentUser.id,
-      };
-      const response = await addItem(createReviewEndpoint, reviewData);
-      if (response) {
-        console.log("Review Added", response);
-        alert("Thanks for your rating");
-        setReviewDatas(reviewInitialize);
-      } else {
-        console.error("Error creating review", response);
-      }
-    } catch (err) {
-      console.error("Error creating review", err);
     }
   };
 
@@ -366,40 +341,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
               <p>Status : {appointment.status}</p>
             </li>
           ))}
-          {barberAppointments.map((appointment) => (
-            <div key={appointment.id}>
-              {console.log(appointment, "appointment in return")}
-              {appointment.status === "complete" ? (
-                <form onSubmit={handleReviewPost}>
-                  <div>
-                    <label htmlFor="rating">Rating</label>
-                    <input
-                      type="number"
-                      id="rating"
-                      name="rating"
-                      value={reviewDatas.rating}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="review_text">Comment</label>
-                    <input
-                      type="text"
-                      id="review_text"
-                      name="review_text"
-                      value={reviewDatas.review_text}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                  <button type="submit">Submit Review</button>
-                </form>
-              ) : (
-                <p>No Completed appointment to make review</p>
-              )}
-            </div>
-          ))}
-
-          {/* checl if barber appointment is complete before post review */}
         </div>
       ) : user.role === "barber" ? (
         <div className="barber-container">
@@ -419,7 +360,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 <div key={index}>
                   <p>Stars: {renderStars(review.rating)}</p>
                   <p>Comments: {review.review_text}</p>
-                  <p>{`Posted ${formatDate(review.created_at)}`}</p>
                 </div>
               ))
             )}
