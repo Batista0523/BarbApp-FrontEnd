@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { confirmAlert } from "react-confirm-alert";
 import "react-confirm-alert/src/react-confirm-alert.css";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../AuthContext";
 import {
   fetchOneItem,
@@ -9,7 +9,7 @@ import {
   fetchAllItems,
   deleteItem,
   updateItem,
-  updateStatusItem
+  updateStatusItem,
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
 // import Barbers from "../UserDetails/Users";
@@ -172,19 +172,19 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   // Handle update services
   const handleUpdateServices = async (e) => {
     e.preventDefault();
-  
+
     const updatedFormData = {
       ...formServicesData,
       barber_id: currentUser.id,
     };
-  
+
     try {
       const updateResponse = await updateItem(
-        'services',
-        editingService.id,  
+        "services",
+        editingService.id,
         updatedFormData
       );
-  
+
       if (updateResponse.success) {
         alert("Update successful!!");
         setIsEditing(false);
@@ -206,7 +206,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       alert("Error updating the services. Please try again.");
     }
   };
-  
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -252,7 +251,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error creating schedule", err);
     }
   };
-  
 
   const handleInputScheduleChange = (e) => {
     const { id, value } = e.target;
@@ -262,8 +260,8 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
     const toUpdateAppointmentEndpoint = `appointments/${appointmentId}/complete`;
     try {
       // Pass an empty object if no additional data is needed in the request body
-      const response = await updateStatusItem(toUpdateAppointmentEndpoint, {}); 
-  
+      const response = await updateStatusItem(toUpdateAppointmentEndpoint, {});
+
       if (response.success) {
         setBarberAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
@@ -280,9 +278,6 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error updating appointment status", error);
     }
   };
-  
-  
-  
 
   // Handle appointment delete
   const handleAppointmentStatusDelete = (appointmentId) => {
@@ -295,7 +290,10 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           label: "Yes",
           onClick: async () => {
             try {
-              const response = await deleteItem(toDeleteAppointmentEndpoint, appointmentId);
+              const response = await deleteItem(
+                toDeleteAppointmentEndpoint,
+                appointmentId
+              );
               if (response.success) {
                 // Update the state to remove the deleted appointment
                 setBarberAppointments((prevAppointments) =>
@@ -318,8 +316,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       ],
     });
   };
-  
-  
+
   const renderStars = (rating) => "⭐".repeat(rating);
 
   const calculateAverageRating = () => {
@@ -341,15 +338,25 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
           <p>Email: {user.email}</p>
           <p>Role: {user.role}</p>
           <p>Phone: {user.phone_number}</p>
-          <h2>Your Appointments</h2>
-          {barberAppointments.map((appointment) => (
-            <li key={appointment.id}>
-              {`Your Appointment details is at ${formatDate(
-                appointment.appointment_date
-              )} at ${formatTime(appointment.appointment_time)}`}
-              <p>Status : {appointment.status}</p>
-            </li>
-          ))}
+          <h2>Your Appointments Details</h2>
+          {barberAppointments.map((appointment) => {
+            const barber = customers.find(
+              (barber) => barber.id === appointment.barber_id
+            );
+            return (
+              <li key={appointment.id}>
+                {`Date Posted: ${formatDate(appointment.created_at)} - 
+        Appointment date and time: ${formatDate(
+          appointment.appointment_date
+        )} at ${formatTime(appointment.appointment_time)}.`}
+        <Link to={`/oneBarber/${barber.id}`}>
+                <p>Barber Name: {barber.name}</p>{" "}
+        </Link>
+              
+                <p>Status: {appointment.status}</p>
+              </li>
+            );
+          })}
         </div>
       ) : user.role === "barber" ? (
         <div className="barber-container">
@@ -369,6 +376,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 <div key={index}>
                   <p>Stars: {renderStars(review.rating)}</p>
                   <p>Comments: {review.review_text}</p>
+                  <p>{`Posted ${formatDate(review.created_at)}`}</p>
                 </div>
               ))
             )}
@@ -514,6 +522,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                     <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
                     <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
                     <p>{`Status: ${appointment.status}`}</p>
+
                     {currentUser.role === "barber" && (
                       <div>
                         <button
