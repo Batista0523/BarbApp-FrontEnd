@@ -9,6 +9,7 @@ import {
   fetchAllItems,
   deleteItem,
   updateItem,
+  updateStatusItem
 } from "../../helpers/apiCalls";
 import "./UserProfile.css";
 // import Barbers from "../UserDetails/Users";
@@ -171,27 +172,29 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   // Handle update services
   const handleUpdateServices = async (e) => {
     e.preventDefault();
-
+  
     const updatedFormData = {
       ...formServicesData,
       barber_id: currentUser.id,
     };
-
+  
     try {
       const updateResponse = await updateItem(
-        "services",
-        editingService.id,
+        'services',
+        editingService.id,  
         updatedFormData
       );
-
+  
       if (updateResponse.success) {
         alert("Update successful!!");
         setIsEditing(false);
         setEditingService(null);
         setFormServicesData({ service_name: "", price: 0 });
-        setServices((prevServices) =>
-          prevServices.map((service) =>
-            service.id === updateResponse.id ? updateResponse : service
+        setServices(
+          services.map((service) =>
+            service.id === editingService.id
+              ? { ...service, ...updateResponse.data }
+              : service
           )
         );
       } else {
@@ -203,6 +206,7 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       alert("Error updating the services. Please try again.");
     }
   };
+  
 
   const handleCancelEdit = () => {
     setIsEditing(false);
@@ -257,11 +261,10 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
   const handleAppointmentStatusUpdate = async (appointmentId, newStatus) => {
     const toUpdateAppointmentEndpoint = `appointments/${appointmentId}/complete`;
     try {
-      const response = await updateItem(toUpdateAppointmentEndpoint, {
-        status: newStatus,
-      });
+      // Pass an empty object if no additional data is needed in the request body
+      const response = await updateStatusItem(toUpdateAppointmentEndpoint, {}); 
+  
       if (response.success) {
-        // Update the state to reflect the change
         setBarberAppointments((prevAppointments) =>
           prevAppointments.map((appointment) =>
             appointment.id === appointmentId
@@ -277,6 +280,9 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
       console.error("Error updating appointment status", error);
     }
   };
+  
+  
+  
 
   // Handle appointment delete
   const handleAppointmentStatusDelete = (appointmentId) => {

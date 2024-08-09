@@ -53,6 +53,18 @@ const updateItem = (endpoint, id, data) => {
     .then(handleResponse)
     .catch(handleError);
 };
+const updateStatusItem = (endpoint, data) => {
+  return axios
+    .put(`${baseURL}/${endpoint}`, data, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+    .then(handleResponse)
+    .catch(handleError);
+};
+
+
 
 const deleteItem = (endpoint,id) => {
   return axios
@@ -60,4 +72,4 @@ const deleteItem = (endpoint,id) => {
     .then(handleResponse)
     .catch(handleError);
 };
-export { fetchAllItems, fetchOneItem, addItem, updateItem, deleteItem,};
+export { fetchAllItems, fetchOneItem, addItem, updateItem, deleteItem,updateStatusItem};
