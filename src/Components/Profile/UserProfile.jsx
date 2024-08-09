@@ -518,7 +518,9 @@ const UserProfile = ({ onLogOff, formatDate, formatTime }) => {
                 );
                 return (
                   <div key={index}>
+                    <Link to={`/oneCustomer/${customer.id}`} >
                     <p>Customer name: {customer.name}</p>
+                    </Link>
                     <p>{`Date: ${formatDate(appointment.appointment_date)}`}</p>
                     <p>{`Time: ${formatTime(appointment.appointment_time)}`}</p>
                     <p>{`Status: ${appointment.status}`}</p>
